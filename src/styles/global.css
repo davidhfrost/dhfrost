@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+/*
+ * dhfrost.com — design tokens and base rules.
+ *
+ * Rules (see CLAUDE.md + docs/plans/scaffold-v1.md):
+ *   - Single column, left-aligned, 60ch measure.
+ *   - Dark by default, honors prefers-color-scheme, no toggle.
+ *   - Generous line-height (1.7), comfortable vertical rhythm.
+ *   - One accent color (warm amber #f5a524) used only on links.
+ *     Everything else is foreground, background, or muted gray.
+ *   - No images on the index page.
+ *   - Font: Newsreader variable (self-hosted, Latin subset), added
+ *     in a later commit. Until then, fall back to a system serif.
+ */
+
+@theme {
+  --color-bg: #0e0e10;
+  --color-fg: #e6e6e6;
+  --color-muted: #8a8a92;
+  --color-accent: #f5a524;
+
+  --font-serif: "Newsreader", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --color-bg: #fafaf7;
+    --color-fg: #16161a;
+    --color-muted: #6b6b74;
+  }
+}
+
+html {
+  color-scheme: light dark;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-serif);
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  font-feature-settings: "kern", "liga";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  margin: 0;
+}
+
+main {
+  max-width: 60ch;
+  margin: 6rem auto 4rem;
+  padding: 0 1.5rem;
+}
+
+h1 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 1.5rem;
+  letter-spacing: -0.01em;
+}
+
+h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 3rem 0 1rem;
+  letter-spacing: -0.005em;
+}
+
+p {
+  margin: 0 0 1rem;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: text-decoration-thickness 120ms ease;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+footer {
+  margin-top: 4rem;
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
