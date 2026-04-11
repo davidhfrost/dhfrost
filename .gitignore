@@ -23,3 +23,6 @@ yarn-debug.log*
 
 # cloudflare wrangler
 .wrangler/
+
+# generated at build time by scripts/generate-og.ts
+public/og.png
