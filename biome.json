@@ -7,7 +7,7 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "ignore": ["dist", ".astro", "node_modules", "public/fonts", "pnpm-lock.yaml"]
+    "ignore": ["dist", ".astro", "node_modules", "public/fonts", "pnpm-lock.yaml", "docs"]
   },
   "formatter": {
     "enabled": true,
