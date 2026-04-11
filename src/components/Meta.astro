@@ -1,0 +1,37 @@
+---
+/**
+ * Page-level <head> metadata: title, description, canonical, OG, Twitter.
+ * Used by Base.astro on every page. Keep dumb — no DOM effects, no JS.
+ */
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+}
+
+const { title, description, image = "/og.png" } = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).toString();
+const ogImage = new URL(image, Astro.site ?? Astro.url).toString();
+---
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="dark light" />
+<meta name="theme-color" content="#0e0e10" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#fafaf7" media="(prefers-color-scheme: light)" />
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="David Frost" />
+<meta property="og:url" content={canonical} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={ogImage} />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
