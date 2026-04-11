@@ -1,0 +1,55 @@
+name: ci
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: lint + typecheck + build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint (biome)
+        run: pnpm lint
+
+      - name: Typecheck (astro check)
+        run: pnpm check
+
+      - name: Build
+        run: pnpm build
+
+      - name: First-load size budget
+        run: |
+          html_bytes=$(wc -c < dist/index.html)
+          font_bytes=$(wc -c < dist/fonts/newsreader-latin-400.woff2)
+          total=$((html_bytes + font_bytes))
+          echo "index.html: ${html_bytes} bytes"
+          echo "font:       ${font_bytes} bytes"
+          echo "total:      ${total} bytes (budget: 50000)"
+          if [ "$total" -gt 50000 ]; then
+            echo "::error::First-load budget exceeded: ${total} > 50000"
+            exit 1
+          fi
