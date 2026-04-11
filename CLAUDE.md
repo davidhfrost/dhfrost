@@ -10,24 +10,33 @@ This is a personal website built with Astro 5, Tailwind v4, and deployed to Clou
 4. **Run `pnpm build` before committing** anything that touches `.astro`, `.ts`, `.tsx`, config, or `tailwind.config.*`. If the build fails, fix it or stash the change — do not commit broken builds.
 5. **Never edit `dist/`, `.astro/`, or `node_modules/`.** These are generated.
 6. **Work in a git worktree**, not the primary checkout (see "Git worktrees" below).
+7. **Tear down a worktree as soon as its branch is merged.** An abandoned worktree keeps its branch alive, burns disk, and tempts future work onto a stale base. Clean up in the same session the PR merges.
 
 ## Git worktrees
 
 The primary checkout at `/Users/david/GitHub/frosty` stays on `main` and should not accumulate uncommitted work. All non-trivial changes happen in a worktree:
 
 ```sh
-# create
-git worktree add ../frosty-worktrees/<branch-name> -b <branch-name>
+# create — always branch off the latest main, not off another feature branch
+cd /Users/david/GitHub/frosty
+git checkout main && git pull --ff-only origin main
+git worktree add ../frosty-worktrees/<branch-name> -b <branch-name> main
 cd ../frosty-worktrees/<branch-name>
 
 # ...work, commit, push, open PR, merge on GitHub...
 
-# cleanup after merge
+# cleanup — do this the same session the PR merges, not "later"
+cd /Users/david/GitHub/frosty
 git worktree remove ../frosty-worktrees/<branch-name>
-git branch -d <branch-name>   # local cleanup; remote already gone
+git branch -d <branch-name>          # local cleanup; remote already gone
+git checkout main && git pull --ff-only origin main   # primary back on fresh main
 ```
 
 Worktrees live under `/Users/david/GitHub/frosty-worktrees/<branch-name>/`. Name the directory to match the branch so `git worktree list` is self-explanatory. Parallel streams of work (e.g. a content edit and a refactor) should each get their own worktree so they don't block each other.
+
+**Branch base:** always create worktrees off the latest `main` (note the explicit `main` at the end of `git worktree add`). Branching off another feature branch stacks work on an unmerged base and makes the eventual PR diff hard to review.
+
+**Cleanup is not optional** (see hard rule #7). Before declaring a merged PR "done," run `git worktree remove` + `git branch -d` + pull fresh `main` into the primary checkout. Stale worktrees have already caused one incident where follow-up work branched off an unmerged scaffold instead of `main`.
 
 Agents: always `cd` into the worktree before any file writes or `pnpm` commands. Never modify files in the primary checkout except to resolve a merge conflict on `main` itself.
 
