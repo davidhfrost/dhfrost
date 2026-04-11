@@ -2,6 +2,10 @@
 
 > **Durable record.** This plan file is the source of truth across sessions. The commit checklist below is updated as each step lands. A fresh session (after compaction, restart, or days later) can read this file, check the journal at `docs/journal/`, and know exactly what's done and what's next. See also `CLAUDE.md` → "Plans".
 
+> **Post-scaffold cleanup (do after step 17):**
+> 1. Fix upstream tracking — `origin` is SSH but the SSH agent is empty, so `git fetch origin` fails. Either switch `origin` to HTTPS (`git remote set-url origin https://github.com/davidhfrost/frosty.git`) or load the key into the agent each session.
+> 2. Going forward, all new work branches off `main` after pulling latest — not off this `scaffold/v1` branch. Create new worktrees via `git worktree add ../frosty-worktrees/<name> -b <name> main` (explicit base).
+
 ## Context
 
 David wants a single-page personal calling card at dhfrost.com — a resume/Google-result target, not an audience site. v1 is intentionally tiny (name, one-line bio, a "now" paragraph, footer) but must feel complete and make adding sections later a 5-minute job, not a refactor. Reference aesthetic: paco.me and leerob.com — single column, markdown-heading sections, no nav/logo/hero/animations. Personality lives in the prose.
@@ -260,22 +264,23 @@ Full `getStaticPaths` + `<Content/>` render templates for `[slug].astro`, wired 
 On branch `scaffold/v1` in worktree `../frosty-worktrees/scaffold-v1`. This checklist is the durable record — it is committed to `docs/plans/scaffold-v1.md` in step 2 and updated as steps land.
 
 - [x] 1. `docs(claude): add git worktree workflow and fix pnpm build command` — `b59d83c`
-- [x] 2. `docs(plan): commit scaffold-v1 plan + progress checklist to docs/plans/` — `5ce22da`
-- [x] 3. `chore: init astro + pnpm + typescript strict` — `8dddd8a`
-- [ ] 4. `chore(tooling): add biome config and scripts` ← next
-- [ ] 4. `chore(tooling): add biome config and scripts`
-- [ ] 5. `feat(styles): add tailwind v4 with theme tokens and global.css`
-- [ ] 6. `feat(fonts): self-host Newsreader variable, latin subset`
-- [ ] 7. `feat(layout): add Base layout and Meta component`
-- [ ] 8. `feat(home): add index.astro with bio, now, footer, section markers`
-- [ ] 9. `feat(content): add writing + projects collection schemas (no routes)`
-- [ ] 10. `feat(seo): add robots.txt, sitemap integration, canonical + og tags`
-- [ ] 11. `feat(og): build-time OG image generation via satori`
-- [ ] 12. `ci: typecheck + build on PRs`
-- [ ] 13. `chore(deploy): wrangler config for cloudflare pages`
-- [ ] 14. `docs: README with setup, deploy, and how to add writing/projects later`
-- [ ] 15. `docs(templates): add writing + projects route templates in docs/`
-- [ ] 16. `docs(decisions): ADR 0001 stack, 0002 font, 0003 accent`
+- [x] 2. `docs(plan): commit scaffold-v1 plan + progress checklist` — `5ce22da`
+- [x] 3. `chore: init astro 5 + pnpm + typescript strict` — `8dddd8a`
+- [x] 4. `chore(tooling): add biome config and scripts` — `1869a70`
+- [x] 5. `feat(styles): add tailwind v4 with theme tokens and global.css` — `f9634f5`
+- [x] 6. `feat(fonts): self-host Newsreader latin, weight 400 only` — `8fa5a47`
+- [x] 7. `feat(layout): add Base layout and Meta component` — `970b558` (amended from `2408491` to drop "and developer platforms" from the bio)
+- [x] 7a. `chore(tooling): add astrojs/check, disable noUnusedImports for .astro` — `1918fca` (pulled forward from step 7 to unblock `pnpm check`)
+- [x] 8. `feat(home): add bio, now placeholder, footer, section markers` — `92803d4` (no email per user direction; GitHub + LinkedIn only)
+- [x] 9. `feat(content): add writing + projects collection schemas (no routes)` — `6db30b0`
+- [x] 10. `feat(seo): add robots.txt pointing at sitemap-index` — `4c96e30` (sitemap + canonical + OG already wired in step 7)
+- [x] 11. `feat(og): build-time OG image via satori + resvg` — `ba07b42`
+- [x] 12. `ci: lint + typecheck + build + size budget on PRs` — `6ea7934`
+- [x] 13. `chore(deploy): wrangler config for cloudflare pages` — `84684b2`
+- [x] 14. `docs: README with setup, deploy, and how to extend` — `f1d4eb3`
+- [x] 15. `docs(templates): add writing + projects route templates` — `6a9ae3a`
+- [x] 16. `docs(decisions): ADRs 0001 stack, 0002 font, 0003 accent` — `a3e6815`
+- [x] 17. Final verification (clean rebuild, preview smoke test) — see journal 2026-04-11 16:15 entry
 
 Each commit: runs `pnpm build` first (from step 5 onward), followed by a journal entry appended to `docs/journal/YYYY-MM-DD.md` and a progress checkbox flip in `docs/plans/scaffold-v1.md` before marking the step done.
 
