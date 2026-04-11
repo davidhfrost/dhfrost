@@ -260,8 +260,9 @@ Full `getStaticPaths` + `<Content/>` render templates for `[slug].astro`, wired 
 On branch `scaffold/v1` in worktree `../frosty-worktrees/scaffold-v1`. This checklist is the durable record — it is committed to `docs/plans/scaffold-v1.md` in step 2 and updated as steps land.
 
 - [x] 1. `docs(claude): add git worktree workflow and fix pnpm build command` — `b59d83c`
-- [ ] 2. `docs(plan): commit scaffold-v1 plan + progress checklist to docs/plans/` ← in progress
-- [ ] 3. `chore: init astro + pnpm + typescript strict`
+- [x] 2. `docs(plan): commit scaffold-v1 plan + progress checklist to docs/plans/` — `5ce22da`
+- [x] 3. `chore: init astro + pnpm + typescript strict` — `8dddd8a`
+- [ ] 4. `chore(tooling): add biome config and scripts` ← next
 - [ ] 4. `chore(tooling): add biome config and scripts`
 - [ ] 5. `feat(styles): add tailwind v4 with theme tokens and global.css`
 - [ ] 6. `feat(fonts): self-host Newsreader variable, latin subset`
