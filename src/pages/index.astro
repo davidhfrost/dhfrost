@@ -1,25 +1,15 @@
 ---
-import "../styles/global.css";
+import Base from "../layouts/Base.astro";
+
+const title = "David Frost";
+const description = "Software engineer working on cloud infrastructure at Capital One.";
 ---
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link
-      rel="preload"
-      href="/fonts/newsreader-latin-400.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
-    <title>David Frost</title>
-  </head>
-  <body>
-    <main>
-      <h1>David Frost</h1>
-      <h2>Now</h2>
-      <p>Newsreader 400 is loaded. Headings use size and tracking, not weight.</p>
-    </main>
-  </body>
-</html>
+<Base title={title} description={description}>
+  <main>
+    <h1>David Frost</h1>
+    <p>{description}</p>
+
+    <h2>Now</h2>
+    <p>Base layout and Meta component are wired up. Real bio + footer land in step 8.</p>
+  </main>
+</Base>

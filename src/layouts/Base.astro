@@ -1,0 +1,28 @@
+---
+import Meta from "../components/Meta.astro";
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <Meta title={title} description={description} />
+    <link
+      rel="preload"
+      href="/fonts/newsreader-latin-400.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
