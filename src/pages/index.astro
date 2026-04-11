@@ -1,7 +1,46 @@
 ---
-// placeholder — real index lands in a later commit
+import Base from "../layouts/Base.astro";
+
+const title = "David Frost";
+const description = "Software engineer working on cloud infrastructure at Capital One.";
 ---
-<html lang="en">
-  <head><meta charset="utf-8" /><title>David Frost</title></head>
-  <body>David Frost</body>
-</html>
+<Base title={title} description={description}>
+  <main>
+    <h1>David Frost</h1>
+    <p>{description}</p>
+
+    <h2>Now</h2>
+    <p>
+      {/* Placeholder. Edit this paragraph directly and commit. */}
+      {/* 2–3 sentences of current context — what I'm focused on, what I'm learning, */}
+      {/* and whatever else is worth saying this month. Inline "now", not a separate page. */}
+      Placeholder. Will replace with a short paragraph about what I'm currently focused on.
+    </p>
+
+    {/* Writing section goes here.
+        To enable:
+          1. Drop an MDX file in src/content/writing/ matching the schema
+             in src/content/config.ts.
+          2. Replace this comment with a <section> that calls
+             getCollection("writing") and lists entries, newest first.
+          3. Copy docs/writing-route-template.astro to
+             src/pages/writing/[slug].astro so individual posts render.
+    */}
+
+    {/* Projects section goes here.
+        To enable:
+          1. Drop an MDX file in src/content/projects/ matching the schema
+             in src/content/config.ts.
+          2. Replace this comment with a <section> that calls
+             getCollection("projects") and lists entries.
+          3. Copy docs/projects-route-template.astro to
+             src/pages/projects/[slug].astro so individual projects render.
+    */}
+
+    <footer>
+      <a href="https://github.com/davidhfrost">GitHub</a>
+      {" · "}
+      <a href="https://www.linkedin.com/in/davidhfrost">LinkedIn</a>
+    </footer>
+  </main>
+</Base>
