@@ -112,7 +112,9 @@ a:focus-visible {
 }
 
 footer {
-  margin-top: 4rem;
+  max-width: 60ch;
+  margin: 4rem auto 0;
+  padding: 0 1.5rem;
   color: var(--color-muted);
   font-size: 0.9375rem;
 }
