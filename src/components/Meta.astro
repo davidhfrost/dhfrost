@@ -2,23 +2,57 @@
 /**
  * Page-level <head> metadata: title, description, canonical, OG, Twitter.
  * Used by Base.astro on every page. Keep dumb — no DOM effects, no JS.
+ *
+ * Pass personSchema={true} only on the homepage — it emits a JSON-LD Person
+ * block that tells Google this page is the entity hub for David Frost.
  */
 interface Props {
   title: string;
   description: string;
   image?: string;
+  personSchema?: boolean;
 }
 
-const { title, description, image = "/og.png" } = Astro.props;
+const { title, description, image = "/og.png", personSchema = false } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).toString();
 const ogImage = new URL(image, Astro.site ?? Astro.url).toString();
+
+const siteOrigin = (Astro.site ?? Astro.url).toString().replace(/\/$/, "");
+
+const personJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "David Frost",
+  alternateName: "davidhfrost",
+  url: siteOrigin,
+  image: `${siteOrigin}/og.png`,
+  jobTitle: "Software Engineer",
+  worksFor: {
+    "@type": "Organization",
+    name: "Capital One",
+    url: "https://www.capitalone.com",
+  },
+  sameAs: [
+    "https://github.com/davidhfrost",
+    "https://www.linkedin.com/in/davidhfrost",
+  ],
+  description:
+    "Software engineer working on cloud infrastructure at Capital One.",
+  knowsAbout: [
+    "Cloud infrastructure",
+    "Infrastructure as code",
+    "CI/CD",
+    "Distributed systems",
+  ],
+};
 ---
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="color-scheme" content="dark light" />
 <meta name="theme-color" content="#0e0e10" media="(prefers-color-scheme: dark)" />
 <meta name="theme-color" content="#fafaf7" media="(prefers-color-scheme: light)" />
+<meta name="author" content="David Frost" />
 
 <title>{title}</title>
 <meta name="description" content={description} />
@@ -35,3 +69,7 @@ const ogImage = new URL(image, Astro.site ?? Astro.url).toString();
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={ogImage} />
+
+{personSchema && (
+  <script type="application/ld+json" set:html={JSON.stringify(personJsonLd)} />
+)}
