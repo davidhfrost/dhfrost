@@ -7,10 +7,11 @@ This is a personal website built with Astro 5, Tailwind v4, and deployed to Clou
 1. **Commit after every logically complete change.** A passing build, a finished component, a fixed bug, a content update — each is its own commit. Never bundle unrelated changes.
 2. **Before declaring any task complete, append a journal entry** to `docs/journal/YYYY-MM-DD.md` (see format below). This is not optional.
 3. **Never push to `main` directly.** Work on a branch, even for small changes. I'll merge.
-4. **Run `pnpm build` before committing** anything that touches `.astro`, `.ts`, `.tsx`, config, or `tailwind.config.*`. If the build fails, fix it or stash the change — do not commit broken builds.
-5. **Never edit `dist/`, `.astro/`, or `node_modules/`.** These are generated.
-6. **Work in a git worktree**, not the primary checkout (see "Git worktrees" below).
-7. **Tear down a worktree as soon as its branch is merged.** An abandoned worktree keeps its branch alive, burns disk, and tempts future work onto a stale base. Clean up in the same session the PR merges.
+4. **Run `pnpm lint && pnpm build` before committing** anything that touches `.astro`, `.ts`, `.tsx`, `.css`, config, or `tailwind.config.*`. Both must pass — lint catches empty blocks, formatting, and type errors that build silently ignores.
+5. **After any structural HTML change that affects layout, verify visually in the dev server** before committing. `pnpm build` only checks that the template compiles; it cannot catch elements that are misaligned or have lost inherited CSS from a moved parent.
+6. **Never edit `dist/`, `.astro/`, or `node_modules/`.** These are generated.
+7. **Work in a git worktree**, not the primary checkout (see "Git worktrees" below).
+8. **Tear down a worktree as soon as its branch is merged.** An abandoned worktree keeps its branch alive, burns disk, and tempts future work onto a stale base. Clean up in the same session the PR merges.
 
 ## Git worktrees
 
@@ -36,7 +37,7 @@ Worktrees live under `/Users/david/GitHub/frosty-worktrees/<branch-name>/`. Name
 
 **Branch base:** always create worktrees off the latest `main` (note the explicit `main` at the end of `git worktree add`). Branching off another feature branch stacks work on an unmerged base and makes the eventual PR diff hard to review.
 
-**Cleanup is not optional** (see hard rule #7). Before declaring a merged PR "done," run `git worktree remove` + `git branch -d` + pull fresh `main` into the primary checkout. Stale worktrees have already caused one incident where follow-up work branched off an unmerged scaffold instead of `main`.
+**Cleanup is not optional** (see hard rule #8). Before declaring a merged PR "done," run `git worktree remove` + `git branch -d` + pull fresh `main` into the primary checkout. Stale worktrees have already caused one incident where follow-up work branched off an unmerged scaffold instead of `main`.
 
 Agents: always `cd` into the worktree before any file writes or `pnpm` commands. Never modify files in the primary checkout except to resolve a merge conflict on `main` itself.
 
@@ -133,6 +134,7 @@ Decisions made during implementation, dead ends, follow-ups.
 - **Content collections:** schema changes go in `src/content/config.ts` and need a journal entry — they have ripple effects.
 - **Cloudflare Pages:** assume the build runs in CI. Don't rely on local-only env vars without documenting them in `.env.example`.
 - **Images:** use Astro's `<Image>` component, not raw `<img>`. Source images live in `src/assets/`, not `public/`, unless they need a stable URL.
+- **CSS `ch` units are font-size-relative.** Two elements using the same `max-width: 60ch` but different `font-size` values will compute to different pixel widths and won't align. When two sibling elements need to share a column width, put the `max-width` and centering on a shared parent wrapper instead of duplicating it on each child.
 
 ## When you're unsure
 
