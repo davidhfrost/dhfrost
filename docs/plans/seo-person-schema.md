@@ -10,7 +10,7 @@ Add Person JSON-LD structured data to the homepage and tighten the SERP title/de
 - [x] **2. Extend `Meta.astro` with structured-data support.** Add `personSchema?: boolean` prop, conditional JSON-LD `<script>` block, `<meta name="author" content="David Frost">`.
 - [x] **3. Forward the prop through `Base.astro`.** Add `personSchema?: boolean` to `Base` props, pass through to `<Meta>`.
 - [x] **4. Enable schema + tighten snippet on the homepage.** Update `src/pages/index.astro` title and description (remove em dash, lead with name, include "Capital One" in title), pass `personSchema={true}` to `<Base>`.
-- [x] **5. Verify.** Run `pnpm lint && pnpm build`, view-source spot-check, validate JSON-LD in Google Rich Results Test (paste mode). Journal entry.
+- [x] **5. Verify.** Run `pnpm lint && pnpm build`, view-source spot-check, validate JSON-LD at validator.schema.org. Journal entry. (Note: Google Rich Results Test is wrong tool for Person -- it only covers visual SERP types and always returns "no rich results detected" for Person schema.)
 - [x] **6. Open PR.** davidhfrost/frosty#11
 
 ## Notes
