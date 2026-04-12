@@ -63,10 +63,13 @@ body {
   margin: 0;
 }
 
-main {
+.page {
   max-width: 60ch;
   margin: 6rem auto 4rem;
   padding: 0 1.5rem;
+}
+
+main {
 }
 
 h1 {
@@ -112,9 +115,7 @@ a:focus-visible {
 }
 
 footer {
-  max-width: 60ch;
-  margin: 4rem auto 0;
-  padding: 0 1.5rem;
+  margin-top: 4rem;
   color: var(--color-muted);
   font-size: 0.9375rem;
 }
