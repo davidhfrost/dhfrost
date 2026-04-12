@@ -102,27 +102,41 @@ Same pattern:
 
 ## Deploy
 
-The site is a fully static Astro build deployed to Cloudflare Pages. Two flows are supported — pick one.
+The site is a fully static Astro build deployed to Cloudflare Pages. The live deploy path is the Cloudflare Pages Git integration; manual `wrangler` is documented below as a break-glass.
 
-### A. Cloudflare Pages Git integration (recommended)
+### A. Cloudflare Pages Git integration (live)
 
-1. In the Cloudflare dashboard, create a new Pages project and connect it to `davidhfrost/frosty`.
-2. Framework preset: **None** (Astro 5 isn't in the dropdown yet, and the dropdown presets override `wrangler.toml`).
-3. Build command: `pnpm build`
-4. Build output directory: `dist`
-5. Environment variables: `NODE_VERSION=22`.
-6. Production branch: `main`. Preview deploys fire automatically on every PR.
+The `dhfrost` Pages project is connected to `davidhfrost/frosty`. Pushes to `main` auto-deploy to `https://dhfrost.com`. PRs get a `*.pages.dev` preview URL commented on the PR.
 
-The `prebuild` hook regenerates `public/og.png` as part of `pnpm build`, so the deployed OG card is always current.
+Settings (recorded here so they can be recreated if the project is ever rebuilt):
 
-### B. Manual / CI deploy via Wrangler
+| Setting                  | Value                                          |
+| ------------------------ | ---------------------------------------------- |
+| Project name             | `dhfrost` (must match `wrangler.toml`)         |
+| Production branch        | `main`                                         |
+| Framework preset         | **None** — presets override `wrangler.toml`    |
+| Build command            | `pnpm build`                                   |
+| Build output directory   | `dist`                                         |
+| Root directory           | repo root                                      |
+| Env var (Prod + Preview) | `NODE_VERSION=22`                              |
+
+pnpm 9.12.0 is picked up automatically from the `packageManager` field in `package.json` — no `PNPM_VERSION` env var needed. The `prebuild` hook regenerates `public/og.png` as part of `pnpm build`, so the deployed OG card is always current.
+
+**Custom domains** attached to the Pages project:
+
+- `dhfrost.com` (apex, canonical — matches `site` in `astro.config.mjs`)
+- `www.dhfrost.com`
+
+A zone-level **Redirect Rule** named `www to apex` 301-redirects `www.dhfrost.com/*` to `https://dhfrost.com/$1`, preserving path and query string. The rule lives at `dhfrost.com` zone → Rules → Redirect Rules. Cloudflare also auto-redirects `http://` → `https://`.
+
+### B. Manual deploy via Wrangler (break-glass only)
 
 ```sh
 pnpm build
 pnpm dlx wrangler pages deploy dist --project-name=dhfrost
 ```
 
-Requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the environment. Use this if you'd rather drive deploys from GitHub Actions or a local script than the Cloudflare dashboard integration.
+Requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the environment. This bypasses the Git integration and creates a "Direct Upload" deployment, so reserve it for the case where Cloudflare's GitHub-side build is broken and a fix needs to ship now. Avoid mixing flows in normal operation.
 
 ## CI
 
