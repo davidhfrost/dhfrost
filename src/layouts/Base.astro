@@ -23,6 +23,13 @@ const { title, description } = Astro.props;
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body>
-    <slot />
+    <div class="page">
+      <slot />
+      <footer>
+        <a href="https://github.com/davidhfrost">GitHub</a>
+        {" · "}
+        <a href="https://www.linkedin.com/in/davidhfrost">LinkedIn</a>
+      </footer>
+    </div>
   </body>
 </html>
