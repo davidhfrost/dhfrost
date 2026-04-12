@@ -107,6 +107,25 @@ Number sequentially. Don't edit old ADRs — supersede them with a new one that 
 
 Non-trivial multi-step work gets a plan file at `docs/plans/<slug>.md` with a progress checklist that is updated as steps land. This is the durable record across sessions — do not rely on in-session task lists alone.
 
+When plan mode is active, the harness writes its scratch file to `~/.claude/plans/`. That file is ephemeral. Before starting implementation, copy the approved plan into `docs/plans/<slug>.md`, commit it on the working branch, and use that file as the live checklist. Tick off each item as the corresponding commit lands. The `~/.claude/plans/` file can be ignored after that.
+
+Plan file format:
+
+```markdown
+# <Title>
+
+## Goal
+One sentence.
+
+## Steps
+- [ ] Step one
+- [ ] Step two
+- [x] Completed step (check off as commits land)
+
+## Notes
+Decisions made during implementation, dead ends, follow-ups.
+```
+
 ## Stack-specific notes
 
 - **Astro:** prefer `.astro` components over framework components unless interactivity is required. If reaching for React, justify it in the commit message or an ADR.
