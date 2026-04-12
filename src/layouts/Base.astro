@@ -5,14 +5,15 @@ import "../styles/global.css";
 interface Props {
   title: string;
   description: string;
+  personSchema?: boolean;
 }
 
-const { title, description } = Astro.props;
+const { title, description, personSchema } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
   <head>
-    <Meta title={title} description={description} />
+    <Meta title={title} description={description} personSchema={personSchema} />
     <link
       rel="preload"
       href="/fonts/newsreader-latin-400.woff2"
