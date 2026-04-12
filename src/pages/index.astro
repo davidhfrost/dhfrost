@@ -1,13 +1,15 @@
 ---
 import Base from "../layouts/Base.astro";
 
-const title = "David Frost — Software Engineer";
-const description = "Software engineer working on cloud infrastructure at Capital One.";
+const title = "David Frost · Software Engineer at Capital One";
+const description =
+  "David Frost is a software engineer at Capital One working on cloud infrastructure, infrastructure as code, and CI/CD. Side project: Retrofolio, a portfolio backtester.";
+const tagline = "Software engineer working on cloud infrastructure at Capital One.";
 ---
-<Base title={title} description={description}>
+<Base title={title} description={description} personSchema={true}>
   <main>
     <h1>David Frost</h1>
-    <p>{description}</p>
+    <p>{tagline}</p>
 
     <h2>Now</h2>
     <p>
