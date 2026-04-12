@@ -1,6 +1,6 @@
 # dhfrost.com
 
-Personal calling card for David Frost. Single page, no audience play — it exists so a recruiter, hiring manager, or Google result lands somewhere intentional.
+David Frost's personal website.
 
 Built with Astro 5, Tailwind v4 (CSS-first), TypeScript strict, zero client JS. Self-hosted Newsreader weight 400, Latin subset. Deployed to Cloudflare Pages.
 
@@ -20,10 +20,10 @@ The site is served at http://localhost:4321. Hot reload works for `.astro`, `.ts
 | `pnpm dev`       | Start the Astro dev server.                                           |
 | `pnpm build`     | Generate OG image, then build the static site into `dist/`.           |
 | `pnpm preview`   | Serve `dist/` for a local prod smoke test.                            |
-| `pnpm check`     | `astro check` — strict TypeScript across `.astro`, `.ts`, frontmatter.|
-| `pnpm lint`      | `biome check .` — lint + format check, non-mutating.                  |
-| `pnpm format`    | `biome format --write .` — rewrite files to match format rules.       |
-| `pnpm fix`       | `biome check --write .` — apply safe lint + format fixes.             |
+| `pnpm check`     | `astro check`: strict TypeScript across `.astro`, `.ts`, frontmatter. |
+| `pnpm lint`      | `biome check .`: lint + format check, non-mutating.                   |
+| `pnpm format`    | `biome format --write .`: rewrite files to match format rules.        |
+| `pnpm fix`       | `biome check --write .`: apply safe lint + format fixes.              |
 | `pnpm og`        | Regenerate `public/og.png` without a full build.                      |
 
 `pnpm build` runs `scripts/generate-og.ts` as a `prebuild` hook, so every build has a fresh OG card.
@@ -55,8 +55,8 @@ src/
   pages/index.astro          # the whole site
   content/
     config.ts                # writing + projects collection schemas (latent)
-    writing/                 # empty — add MDX files to enable the writing section
-    projects/                # empty — add MDX files to enable the projects section
+    writing/                 # empty; add MDX files to enable the writing section
+    projects/                # empty; add MDX files to enable the projects section
   styles/global.css          # @theme tokens + base rules, one @font-face
 ```
 
@@ -67,7 +67,7 @@ src/
 All content is in the repo. There is no CMS.
 
 - **Bio + Now paragraph**: edit `src/pages/index.astro` directly. The `description` constant is the bio; the `<p>` inside `<h2>Now</h2>` is the Now paragraph. Commit.
-- **Footer links**: same file. GitHub + LinkedIn only — no email by design (see below).
+- **Footer links**: same file. GitHub + LinkedIn only. No email by design (see below).
 
 ## Adding a writing section later
 
@@ -87,7 +87,7 @@ Goal: go from "no writing" to "posts listed on index and individually routable" 
 
 2. **Enable the listing on the index**. Open `src/pages/index.astro`, find the `{/* Writing section goes here */}` marker, and replace it with a listing. The paste-ready loop is at the bottom of `docs/writing-route-template.astro`.
 
-3. **Add the post route**. Copy `docs/writing-route-template.astro` to `src/pages/writing/[slug].astro`. No edits needed — it's wired to the existing schema. Individual posts will render at `/writing/<slug>`.
+3. **Add the post route**. Copy `docs/writing-route-template.astro` to `src/pages/writing/[slug].astro`. No edits needed: it's wired to the existing schema. Individual posts will render at `/writing/<slug>`.
 
 4. `pnpm build` to verify.
 
@@ -114,17 +114,17 @@ Settings (recorded here so they can be recreated if the project is ever rebuilt)
 | ------------------------ | ---------------------------------------------- |
 | Project name             | `dhfrost` (must match `wrangler.toml`)         |
 | Production branch        | `main`                                         |
-| Framework preset         | **None** — presets override `wrangler.toml`    |
+| Framework preset         | **None** (presets override `wrangler.toml`)    |
 | Build command            | `pnpm build`                                   |
 | Build output directory   | `dist`                                         |
 | Root directory           | repo root                                      |
 | Env var (Prod + Preview) | `NODE_VERSION=22`                              |
 
-pnpm 9.12.0 is picked up automatically from the `packageManager` field in `package.json` — no `PNPM_VERSION` env var needed. The `prebuild` hook regenerates `public/og.png` as part of `pnpm build`, so the deployed OG card is always current.
+pnpm 9.12.0 is picked up automatically from the `packageManager` field in `package.json`; no `PNPM_VERSION` env var needed. The `prebuild` hook regenerates `public/og.png` as part of `pnpm build`, so the deployed OG card is always current.
 
 **Custom domains** attached to the Pages project:
 
-- `dhfrost.com` (apex, canonical — matches `site` in `astro.config.mjs`)
+- `dhfrost.com` (apex, canonical; matches `site` in `astro.config.mjs`)
 - `www.dhfrost.com`
 
 A zone-level **Redirect Rule** named `www to apex` 301-redirects `www.dhfrost.com/*` to `https://dhfrost.com/$1`, preserving path and query string. The rule lives at `dhfrost.com` zone → Rules → Redirect Rules. Cloudflare also auto-redirects `http://` → `https://`.
@@ -143,8 +143,8 @@ Requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the environment. 
 `.github/workflows/ci.yml` runs on every PR to `main` and every push to `main`:
 
 1. `pnpm install --frozen-lockfile`
-2. `pnpm lint` — biome
-3. `pnpm check` — astro check (strict TS)
+2. `pnpm lint` (biome)
+3. `pnpm check` (astro check, strict TS)
 4. `pnpm build`
 5. First-load size budget: fails if `dist/index.html` + `dist/fonts/newsreader-latin-400.woff2` > 50,000 bytes.
 
@@ -158,7 +158,7 @@ Codified so they don't get diluted by accident:
 - Dark default, `prefers-color-scheme` honored, no toggle
 - Line-height 1.7, generous vertical rhythm
 - One accent color (`#f5a524`, warm amber) used only on links
-- Foreground, background, and one muted gray — no other colors
+- Foreground, background, and one muted gray. No other colors.
 - No images on the index page
 - One self-hosted font, one weight (400), Latin subset
 - Zero client JS
@@ -170,4 +170,4 @@ See `CLAUDE.md` for hard rules on commits, branching, journal entries, ADRs, and
 
 ## A note on the footer
 
-GitHub + LinkedIn only. No email link — public personal sites get scraped hard and a plain `mailto:` is free fuel for spam lists. If a contact channel is needed beyond those two, open a GitHub discussion or message through LinkedIn.
+GitHub + LinkedIn only. No email link. Public personal sites get scraped hard and a plain `mailto:` is free fuel for spam lists. If a contact channel is needed beyond those two, open a GitHub discussion or message through LinkedIn.
