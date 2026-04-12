@@ -11,7 +11,7 @@ Add Person JSON-LD structured data to the homepage and tighten the SERP title/de
 - [x] **3. Forward the prop through `Base.astro`.** Add `personSchema?: boolean` to `Base` props, pass through to `<Meta>`.
 - [x] **4. Enable schema + tighten snippet on the homepage.** Update `src/pages/index.astro` title and description (remove em dash, lead with name, include "Capital One" in title), pass `personSchema={true}` to `<Base>`.
 - [x] **5. Verify.** Run `pnpm lint && pnpm build`, view-source spot-check, validate JSON-LD in Google Rich Results Test (paste mode). Journal entry.
-- [ ] **6. Open PR.**
+- [x] **6. Open PR.** davidhfrost/frosty#11
 
 ## Notes
 
