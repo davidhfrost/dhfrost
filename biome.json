@@ -7,7 +7,15 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!dist/**", "!.astro/**", "!node_modules/**", "!public/fonts/**", "!pnpm-lock.yaml", "!docs/**"]
+    "includes": [
+      "**",
+      "!dist",
+      "!.astro",
+      "!node_modules",
+      "!public/fonts",
+      "!pnpm-lock.yaml",
+      "!docs"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -40,6 +48,11 @@
       }
     }
   },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
   "javascript": {
     "formatter": {
       "quoteStyle": "double",
@@ -49,7 +62,7 @@
   },
   "overrides": [
     {
-      "includes": ["*.astro"],
+      "includes": ["**/*.astro"],
       "linter": {
         "rules": {
           "correctness": {
