@@ -1,20 +1,19 @@
 import { defineCollection, z } from "astro:content";
+import { glob } from "astro/loaders";
 
 /**
- * Latent content collections.
+ * Content collections using Astro 6 Content Layer API.
  *
- * Schemas are defined so adding writing/projects later is a 5-minute job,
- * not a refactor. v1 of the site does NOT import these anywhere and does
- * NOT have route files for them — see docs/plans/scaffold-v1.md and the
- * commented markers in src/pages/index.astro for how to turn them on.
+ * Moved from src/content/config.ts and updated to use explicit glob loaders
+ * as required by Astro 6 (see docs/decisions/0005-astro-6-upgrade.md).
  *
- * The writing/ and projects/ directories exist (via .gitkeep) so the
- * collections resolve cleanly and `astro check` / `astro build` stay
- * green with zero entries.
+ * Collections are latent scaffolding: schemas are defined so adding
+ * writing/projects later is a 5-minute job, not a refactor. No routes
+ * consume these yet.
  */
 
 const writing = defineCollection({
-  type: "content",
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/writing" }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -25,7 +24,7 @@ const writing = defineCollection({
 });
 
 const projects = defineCollection({
-  type: "content",
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/projects" }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
