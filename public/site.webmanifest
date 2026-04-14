@@ -1,0 +1,11 @@
+{
+  "name": "David Frost",
+  "short_name": "dhfrost",
+  "theme_color": "#0e0e10",
+  "background_color": "#0e0e10",
+  "display": "minimal-ui",
+  "icons": [
+    { "src": "/favicon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
