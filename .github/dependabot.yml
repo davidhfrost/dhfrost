@@ -1,0 +1,17 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    labels:
+      - deps
+    groups:
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+    # Major bumps are not in the group, so Dependabot still opens them --
+    # just as individual PRs (one per package) rather than batched. This
+    # keeps Astro, mdx, sitemap etc. visible and separately reviewable.
