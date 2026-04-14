@@ -1,6 +1,6 @@
 # dhfrost.com — Claude Code Conventions
 
-This is a personal website built with Astro 5, Tailwind v4, and deployed to Cloudflare Pages. Treat it as a long-lived project I'll come back to in bursts, not a one-shot build. Optimize for *future me being able to pick up where we left off*.
+This is a personal website built with Astro 6, Tailwind v4, and deployed to Cloudflare Pages. Treat it as a long-lived project I'll come back to in bursts, not a one-shot build. Optimize for *future me being able to pick up where we left off*.
 
 ## Hard rules (do not skip)
 
@@ -131,7 +131,7 @@ Decisions made during implementation, dead ends, follow-ups.
 
 - **Astro:** prefer `.astro` components over framework components unless interactivity is required. If reaching for React, justify it in the commit message or an ADR.
 - **Tailwind v4:** use the CSS-first config (`@theme` in the main stylesheet), not a JS config file. Don't reintroduce `tailwind.config.js`.
-- **Content collections:** schema changes go in `src/content/config.ts` and need a journal entry — they have ripple effects.
+- **Content collections:** schema changes go in `src/content.config.ts` (note: top-level, not inside `src/content/`) and need a journal entry — they have ripple effects.
 - **Cloudflare Pages:** assume the build runs in CI. Don't rely on local-only env vars without documenting them in `.env.example`.
 - **Images:** use Astro's `<Image>` component, not raw `<img>`. Source images live in `src/assets/`, not `public/`, unless they need a stable URL.
 - **CSS `ch` units are font-size-relative.** Two elements using the same `max-width: 60ch` but different `font-size` values will compute to different pixel widths and won't align. When two sibling elements need to share a column width, put the `max-width` and centering on a shared parent wrapper instead of duplicating it on each child.
