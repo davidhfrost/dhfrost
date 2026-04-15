@@ -15,3 +15,20 @@ updates:
     # Major bumps are not in the group, so Dependabot still opens them --
     # just as individual PRs (one per package) rather than batched. This
     # keeps Astro, mdx, sitemap etc. visible and separately reviewable.
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    labels:
+      - deps
+      - ci
+    groups:
+      actions-minor-and-patch:
+        update-types:
+          - minor
+          - patch
+    # Same pattern as the npm block: group boring minor/patch bumps so the
+    # inbox stays quiet, let majors (actions/checkout@v5 etc.) surface
+    # individually so they can be reviewed on their own.
