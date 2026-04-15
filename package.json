@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.8",
-    "@biomejs/biome": "^2.4.11",
+    "@biomejs/biome": "^2.4.12",
     "@resvg/resvg-js": "^2.6.2",
     "satori": "^0.26.0",
     "tsx": "^4.21.0",
