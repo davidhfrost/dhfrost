@@ -2,7 +2,16 @@
   "name": "dhfrost",
   "type": "module",
   "version": "0.1.0",
-  "private": true,
+  "license": "MIT",
+  "author": "David Frost",
+  "homepage": "https://dhfrost.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/davidhfrost/frosty"
+  },
+  "bugs": {
+    "url": "https://github.com/davidhfrost/frosty/issues"
+  },
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
