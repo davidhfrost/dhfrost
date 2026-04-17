@@ -26,3 +26,6 @@ yarn-debug.log*
 
 # generated at build time by scripts/generate-og.ts
 public/og.png
+
+# journal lives in a separate private repo, symlinked here
+docs/journal
