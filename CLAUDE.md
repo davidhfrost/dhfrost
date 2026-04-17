@@ -55,10 +55,16 @@ Agents: always `cd` into the worktree before any file writes or `pnpm` commands.
 
 ## Work journal
 
-`docs/journal/` is a symlink to a separate private repo (`frosty-journal`), cloned at `~/GitHub/frosty-journal/`. It is gitignored in the public repo. After writing entries, commit and push in that repo:
+`docs/journal/` is a symlink to a separate private repo (`dhfrost-journal`), cloned at `~/GitHub/dhfrost-journal/`. It is gitignored in the public repo. After writing entries, commit and push in that repo:
 
 ```sh
-cd ~/GitHub/frosty-journal && git add -A && git commit -m "journal: $(date +%Y-%m-%d)" && git push
+cd ~/GitHub/dhfrost-journal && git add -A && git commit -m "journal: $(date +%Y-%m-%d)" && git push
+```
+
+On a fresh clone of `frosty`, recreate the symlink from the repo root:
+
+```sh
+ln -s ../../dhfrost-journal docs/journal
 ```
 
 Path: `docs/journal/YYYY-MM-DD.md` (create if missing, append if exists).
