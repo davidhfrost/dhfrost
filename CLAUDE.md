@@ -16,11 +16,11 @@ This is a personal website built with Astro 6, Tailwind v4, and deployed to Clou
 
 ## Git worktrees
 
-The primary checkout at `/Users/david/GitHub/frosty` stays on `main` and should not accumulate uncommitted work. All non-trivial changes happen in a worktree:
+The primary checkout stays on `main` and should not accumulate uncommitted work. All non-trivial changes happen in a worktree:
 
 ```sh
 # create — always branch off the latest main, not off another feature branch
-cd /Users/david/GitHub/frosty
+cd <primary-checkout>
 git checkout main && git pull --ff-only origin main
 git worktree add ../frosty-worktrees/<branch-name> -b <branch-name> main
 cd ../frosty-worktrees/<branch-name>
@@ -28,13 +28,13 @@ cd ../frosty-worktrees/<branch-name>
 # ...work, commit, push, open PR, merge on GitHub...
 
 # cleanup — do this the same session the PR merges, not "later"
-cd /Users/david/GitHub/frosty
+cd <primary-checkout>
 git worktree remove ../frosty-worktrees/<branch-name>
 git branch -d <branch-name>          # local cleanup; remote already gone
 git checkout main && git pull --ff-only origin main   # primary back on fresh main
 ```
 
-Worktrees live under `/Users/david/GitHub/frosty-worktrees/<branch-name>/`. Name the directory to match the branch so `git worktree list` is self-explanatory. Parallel streams of work (e.g. a content edit and a refactor) should each get their own worktree so they don't block each other.
+Worktrees live under `../frosty-worktrees/<branch-name>/` relative to the primary checkout. Name the directory to match the branch so `git worktree list` is self-explanatory. Parallel streams of work (e.g. a content edit and a refactor) should each get their own worktree so they don't block each other.
 
 **Branch base:** always create worktrees off the latest `main` (note the explicit `main` at the end of `git worktree add`). Branching off another feature branch stacks work on an unmerged base and makes the eventual PR diff hard to review.
 
