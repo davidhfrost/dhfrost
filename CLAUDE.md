@@ -55,6 +55,12 @@ Agents: always `cd` into the worktree before any file writes or `pnpm` commands.
 
 ## Work journal
 
+`docs/journal/` is a symlink to a separate private repo (`frosty-journal`), cloned at `~/GitHub/frosty-journal/`. It is gitignored in the public repo. After writing entries, commit and push in that repo:
+
+```sh
+cd ~/GitHub/frosty-journal && git add -A && git commit -m "journal: $(date +%Y-%m-%d)" && git push
+```
+
 Path: `docs/journal/YYYY-MM-DD.md` (create if missing, append if exists).
 
 Entry format:
