@@ -1,8 +1,32 @@
 # dhfrost.com
 
-David Frost's personal website.
+Source code for [dhfrost.com](https://dhfrost.com), David Frost's personal website. Built with Astro 6, Tailwind v4 (CSS-first), TypeScript strict, zero client JS. Self-hosted Newsreader weight 400, Latin subset. Deployed to Cloudflare Pages.
 
-Built with Astro 5, Tailwind v4 (CSS-first), TypeScript strict, zero client JS. Self-hosted Newsreader weight 400, Latin subset. Deployed to Cloudflare Pages.
+This is a personal site, not a starter template — but the code is MIT-licensed and free to study or adapt.
+
+## Design rules
+
+Codified so they don't get diluted by accident:
+
+- Single column, left-aligned, 60ch measure
+- Dark default, `prefers-color-scheme` honored, no toggle
+- Line-height 1.7, generous vertical rhythm
+- One accent color (`#f5a524`, warm amber) used only on links
+- Foreground, background, and one muted gray. No other colors.
+- No images on the index page
+- One self-hosted font, one weight (400), Latin subset
+- Zero client JS
+- <50KB first-load, Lighthouse 100/100/100/100
+
+## Tech stack
+
+- [Astro 6](https://astro.build) + MDX
+- [Tailwind v4](https://tailwindcss.com) (CSS-first, no JS config)
+- TypeScript strict via `astro check`
+- [Biome 2](https://biomejs.dev) for lint and format
+- [Satori](https://github.com/vercel/satori) + resvg for build-time OG image generation
+- Cloudflare Pages (static deploy via Git integration)
+- pnpm 10 / Node 22
 
 ## Local dev
 
@@ -36,9 +60,9 @@ astro.config.mjs             # mdx, sitemap, @tailwindcss/vite, inlineStylesheet
 biome.json                   # lint + format config (replaces eslint/prettier)
 wrangler.toml                # cloudflare pages project
 docs/
-  journal/YYYY-MM-DD.md      # work journal (see CLAUDE.md for the required format)
-  decisions/NNNN-*.md        # ADRs (see CLAUDE.md for the template)
+  decisions/NNNN-*.md        # architecture decision records
   plans/<slug>.md            # multi-step plans with progress checklists
+  deploy.md                  # cloudflare pages setup reference
   writing-route-template.astro   # copy to src/pages/writing/[slug].astro to enable
   projects-route-template.astro  # copy to src/pages/projects/[slug].astro to enable
 public/
@@ -62,18 +86,18 @@ src/
 
 `src/pages/index.astro` is the whole site. Everything else is latent scaffolding.
 
-## Editing content
+## Content workflow
 
-All content is in the repo. There is no CMS.
+### Editing content
 
-- **Bio + Now paragraph**: edit `src/pages/index.astro` directly. The `description` constant is the bio; the `<p>` inside `<h2>Now</h2>` is the Now paragraph. Commit.
-- **Footer links**: same file. GitHub + LinkedIn only. No email by design (see below).
+All content lives in the repo. There is no CMS.
 
-## Adding a writing section later
+- **Bio + Now paragraph**: edit `src/pages/index.astro`. The `description` constant is the bio; the `<p>` inside `<h2>Now</h2>` is the Now paragraph.
+- **Footer links**: same file. GitHub + LinkedIn only. No email by design.
 
-Goal: go from "no writing" to "posts listed on index and individually routable" in ~5 minutes.
+### Adding a writing section
 
-1. **Drop an MDX file** in `src/content/writing/`, e.g. `hello.mdx`. Frontmatter must match the schema in `src/content/config.ts`:
+1. Drop an MDX file in `src/content/writing/`, e.g. `hello.mdx`. Frontmatter must match the schema in `src/content/config.ts`:
 
    ```mdx
    ---
@@ -82,92 +106,45 @@ Goal: go from "no writing" to "posts listed on index and individually routable" 
    publishedAt: 2026-04-11
    ---
 
-   The body is MDX. Write whatever.
+   The body is MDX.
    ```
 
-2. **Enable the listing on the index**. Open `src/pages/index.astro`, find the `{/* Writing section goes here */}` marker, and replace it with a listing. The paste-ready loop is at the bottom of `docs/writing-route-template.astro`.
+2. Enable the listing on the index: find the `{/* Writing section goes here */}` marker in `src/pages/index.astro` and replace it with the listing loop from `docs/writing-route-template.astro`.
 
-3. **Add the post route**. Copy `docs/writing-route-template.astro` to `src/pages/writing/[slug].astro`. No edits needed: it's wired to the existing schema. Individual posts will render at `/writing/<slug>`.
+3. Add the post route: copy `docs/writing-route-template.astro` to `src/pages/writing/[slug].astro`. Individual posts render at `/writing/<slug>`.
 
 4. `pnpm build` to verify.
 
-## Adding a projects section later
+### Adding a projects section
 
-Same pattern:
+Same pattern as writing:
 
 1. Drop an MDX file in `src/content/projects/` matching the `projects` schema (`title`, `description`, `url?`, `repo?`, `year`, `featured`).
-2. Replace the `{/* Projects section goes here */}` marker in `src/pages/index.astro` with the listing loop at the bottom of `docs/projects-route-template.astro`.
+2. Replace `{/* Projects section goes here */}` in `src/pages/index.astro` with the listing loop from `docs/projects-route-template.astro`.
 3. Copy `docs/projects-route-template.astro` to `src/pages/projects/[slug].astro`.
 4. `pnpm build`.
 
 ## Deploy
 
-The site is a fully static Astro build deployed to Cloudflare Pages. The live deploy path is the Cloudflare Pages Git integration; manual `wrangler` is documented below as a break-glass.
-
-### A. Cloudflare Pages Git integration (live)
-
-The `dhfrost` Pages project is connected to `davidhfrost/frosty`. Pushes to `main` auto-deploy to `https://dhfrost.com`. PRs get a `*.pages.dev` preview URL commented on the PR.
-
-Settings (recorded here so they can be recreated if the project is ever rebuilt):
-
-| Setting                  | Value                                          |
-| ------------------------ | ---------------------------------------------- |
-| Project name             | `dhfrost` (must match `wrangler.toml`)         |
-| Production branch        | `main`                                         |
-| Framework preset         | **None** (presets override `wrangler.toml`)    |
-| Build command            | `pnpm build`                                   |
-| Build output directory   | `dist`                                         |
-| Root directory           | repo root                                      |
-| Env var (Prod + Preview) | `NODE_VERSION=22`                              |
-
-pnpm 9.12.0 is picked up automatically from the `packageManager` field in `package.json`; no `PNPM_VERSION` env var needed. The `prebuild` hook regenerates `public/og.png` as part of `pnpm build`, so the deployed OG card is always current.
-
-**Custom domains** attached to the Pages project:
-
-- `dhfrost.com` (apex, canonical; matches `site` in `astro.config.mjs`)
-- `www.dhfrost.com`
-
-A zone-level **Redirect Rule** named `www to apex` 301-redirects `www.dhfrost.com/*` to `https://dhfrost.com/$1`, preserving path and query string. The rule lives at `dhfrost.com` zone → Rules → Redirect Rules. Cloudflare also auto-redirects `http://` → `https://`.
-
-### B. Manual deploy via Wrangler (break-glass only)
-
-```sh
-pnpm build
-pnpm dlx wrangler pages deploy dist --project-name=dhfrost
-```
-
-Requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the environment. This bypasses the Git integration and creates a "Direct Upload" deployment, so reserve it for the case where Cloudflare's GitHub-side build is broken and a fix needs to ship now. Avoid mixing flows in normal operation.
+The site deploys automatically to Cloudflare Pages on push to `main`. See [`docs/deploy.md`](docs/deploy.md) for setup details and the break-glass manual deploy path.
 
 ## CI
 
-`.github/workflows/ci.yml` runs on every PR to `main` and every push to `main`:
+`.github/workflows/ci.yml` runs on every PR and push to `main`:
 
 1. `pnpm install --frozen-lockfile`
-2. `pnpm lint` (biome)
+2. `pnpm lint` (Biome)
 3. `pnpm check` (astro check, strict TS)
 4. `pnpm build`
 5. First-load size budget: fails if `dist/index.html` + `dist/fonts/newsreader-latin-400.woff2` > 50,000 bytes.
 
-The size budget is the load-bearing rule that keeps this site honest. If it fails, find out why before loosening it.
+The size budget is the load-bearing rule that keeps the site honest.
 
-## Design rules
+## License
 
-Codified so they don't get diluted by accident:
-
-- Single column, left-aligned, 60ch measure
-- Dark default, `prefers-color-scheme` honored, no toggle
-- Line-height 1.7, generous vertical rhythm
-- One accent color (`#f5a524`, warm amber) used only on links
-- Foreground, background, and one muted gray. No other colors.
-- No images on the index page
-- One self-hosted font, one weight (400), Latin subset
-- Zero client JS
-- <50KB first-load, Lighthouse 100/100/100/100
+Code: [MIT](LICENSE).
+Written content (`docs/**`, `src/content/**`): [CC BY 4.0](LICENSE-CONTENT).
 
 ## Conventions
 
-See `CLAUDE.md` for hard rules on commits, branching, journal entries, ADRs, and the git-worktree workflow. New work happens in a worktree under `../frosty-worktrees/<branch>/`, never directly in the primary checkout.
-
-## A note on the footer
-
-GitHub + LinkedIn only. No email link. Public personal sites get scraped hard and a plain `mailto:` is free fuel for spam lists. If a contact channel is needed beyond those two, open a GitHub discussion or message through LinkedIn.
+See [`CLAUDE.md`](CLAUDE.md) for commit, branching, journal, ADR, and worktree conventions.
