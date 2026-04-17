@@ -12,6 +12,7 @@ This is a personal website built with Astro 6, Tailwind v4, and deployed to Clou
 6. **Never edit `dist/`, `.astro/`, or `node_modules/`.** These are generated.
 7. **Work in a git worktree**, not the primary checkout (see "Git worktrees" below).
 8. **Tear down a worktree as soon as its branch is merged.** An abandoned worktree keeps its branch alive, burns disk, and tempts future work onto a stale base. Clean up in the same session the PR merges.
+9. **When raising a PR in this repo, check `~/GitHub/dhfrost-journal` for uncommitted or unpushed journal entries.** If any exist, commit and push them, then raise a PR on `dhfrost-journal` in the same session.
 
 ## Git worktrees
 
