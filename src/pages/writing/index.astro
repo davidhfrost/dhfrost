@@ -20,6 +20,7 @@ posts.sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf()
         <p>{post.data.description}</p>
         <time class="post-entry-date" datetime={post.data.publishedAt.toISOString()}>
           {post.data.publishedAt.toLocaleDateString("en-US", {
+            timeZone: "UTC",
             year: "numeric",
             month: "long",
             day: "numeric",

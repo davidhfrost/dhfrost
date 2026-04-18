@@ -33,6 +33,7 @@ const recentPosts = (
             {" · "}
             <time datetime={post.data.publishedAt.toISOString()}>
               {post.data.publishedAt.toLocaleDateString("en-US", {
+                timeZone: "UTC",
                 year: "numeric",
                 month: "long",
                 day: "numeric",
