@@ -6,12 +6,12 @@ Turn the latent `writing` collection scaffold into a working blog section: list 
 
 ## Steps
 
-- [ ] `feat(writing): add Post layout`
-- [ ] `feat(writing): add /writing index route`
-- [ ] `feat(writing): add dynamic post route with draft filtering`
-- [ ] `feat(home): add Writing section linking to recent posts`
-- [ ] `content: add placeholder first post`
-- [ ] `style(writing): add article typography`
+- [x] `feat(writing): add Post layout`
+- [x] `feat(writing): add /writing index route`
+- [x] `feat(writing): add dynamic post route with draft filtering`
+- [x] `feat(home): add Writing section linking to recent posts`
+- [x] `content: add placeholder first post`
+- [x] `style(writing): add article typography`
 
 ## Notes
 
