@@ -1,0 +1,29 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Base from "./Base.astro";
+
+interface Props {
+  post: CollectionEntry<"writing">;
+}
+
+const { post } = Astro.props;
+const { title, description, publishedAt } = post.data;
+
+const formattedDate = publishedAt.toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+---
+<Base title={`${title} · David Frost`} description={description}>
+  <main>
+    <p><a href="/writing">← Writing</a></p>
+    <article>
+      <h1>{title}</h1>
+      <time class="post-date" datetime={publishedAt.toISOString()}>{formattedDate}</time>
+      <div class="post-body">
+        <slot />
+      </div>
+    </article>
+  </main>
+</Base>
