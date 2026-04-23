@@ -47,7 +47,7 @@ Add Person JSON-LD structured data to the homepage and tighten the SERP title/de
 
 **Title/description targets:**
 - Title: `"David Frost · Software Engineer at Capital One"` (replaces em dash, adds employer for long-tail query match)
-- Description: `"David Frost is a software engineer at Capital One working on cloud infrastructure, infrastructure as code, and CI/CD. Side project: Retrofolio, a portfolio backtester."` (leads with name, front-loads employer)
+- Description: `"David Frost is a software engineer at Capital One working on cloud infrastructure, infrastructure as code, and CI/CD."` (leads with name, front-loads employer)
 
 **`image` field note:** `/og.png` is the auto-generated text card, not a headshot. Valid URL, but Google will not use it as a knowledge-panel photo. Headshot follow-up is separate.
 
