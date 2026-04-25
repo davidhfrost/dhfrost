@@ -1,10 +1,17 @@
 ---
+import { getCollection } from "astro:content";
 import Base from "../layouts/Base.astro";
 
 const title = "David Frost · Software Engineer at Capital One";
 const description =
   "David Frost is a software engineer at Capital One working on cloud infrastructure, infrastructure as code, and CI/CD.";
 const tagline = "Software engineer working on cloud infrastructure at Capital One.";
+
+const recentPosts = (
+  await getCollection("writing", ({ data }) => (import.meta.env.PROD ? !data.draft : true))
+)
+  .sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf())
+  .slice(0, 3);
 ---
 <Base title={title} description={description} personSchema={true}>
   <main>
@@ -15,6 +22,30 @@ const tagline = "Software engineer working on cloud infrastructure at Capital On
     <p>
       At Capital One I work on the network infrastructure behind the web and mobile apps, mostly cloud engineering, infrastructure-as-code, and CI/CD.
     </p>
+
+    <h2>Writing</h2>
+
+    {recentPosts.length > 0 ? (
+      <>
+        {recentPosts.map((post) => (
+          <p>
+            <a href={`/writing/${post.id}`}>{post.data.title}</a>
+            {" · "}
+            <time datetime={post.data.publishedAt.toISOString()}>
+              {post.data.publishedAt.toLocaleDateString("en-US", {
+                timeZone: "UTC",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </time>
+          </p>
+        ))}
+        <p><a href="/writing">All writing →</a></p>
+      </>
+    ) : (
+      <p><a href="/writing">Writing</a></p>
+    )}
 
     <h2>Projects</h2>
 
