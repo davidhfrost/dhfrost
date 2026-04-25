@@ -90,4 +90,4 @@ CD's limits are mostly architectural. Doing canary mechanics on an eventually-co
 
 ---
 
-If you're working on CD or the broader progressive delivery story at scale, I'd be glad to compare notes. Find me on [LinkedIn](https://linkedin.com/in/davidhfrost).
+If any of this resonates, I'd be glad to compare notes. Find me on [LinkedIn](https://linkedin.com/in/davidhfrost).
