@@ -90,4 +90,4 @@ CD's limits are mostly architectural. Doing canary mechanics on an eventually-co
 
 ---
 
-If any of this resonates, I'd be glad to compare notes. Find me on [LinkedIn](https://linkedin.com/in/davidhfrost).
+If any of this resonates, I'd be glad to compare notes.
