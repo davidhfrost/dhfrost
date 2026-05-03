@@ -1,13 +1,11 @@
 variable "account_id" {
   type        = string
   description = "Cloudflare account ID owning the dhfrost Pages project and the dhfrost.com zone."
-  sensitive   = true
 }
 
 variable "zone_id" {
   type        = string
   description = "Cloudflare zone ID for dhfrost.com."
-  sensitive   = true
 }
 
 variable "project_name" {

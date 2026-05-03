@@ -9,14 +9,10 @@ resource "cloudflare_pages_project" "dhfrost" {
       owner                          = "davidhfrost"
       repo_name                      = "frosty"
       production_branch              = "main"
-      pr_comments_enabled            = true
-      deployments_enabled            = true
       production_deployments_enabled = true
       preview_deployment_setting     = "all"
       preview_branch_includes        = ["*"]
-      preview_branch_excludes        = []
       path_includes                  = ["*"]
-      path_excludes                  = []
     }
   }
 
@@ -37,9 +33,7 @@ resource "cloudflare_pages_project" "dhfrost" {
       fail_open                            = true
       always_use_latest_compatibility_date = false
       compatibility_date                   = "2026-04-12"
-      compatibility_flags                  = []
       build_image_major_version            = 3
-      usage_model                          = "standard"
     }
     production = {
       env_vars = {
@@ -51,9 +45,7 @@ resource "cloudflare_pages_project" "dhfrost" {
       fail_open                            = true
       always_use_latest_compatibility_date = false
       compatibility_date                   = "2026-04-12"
-      compatibility_flags                  = []
       build_image_major_version            = 3
-      usage_model                          = "standard"
     }
   }
 }
