@@ -29,3 +29,13 @@ public/og.png
 
 # journal lives in a separate private repo, symlinked here
 docs/journal
+
+# opentofu / terraform — see infra/README.md
+infra/.terraform/
+infra/terraform.tfvars
+infra/backend.hcl
+infra/*.tfstate
+infra/*.tfstate.*
+infra/plan.bin
+infra/crash.log
+infra/recon.sh
