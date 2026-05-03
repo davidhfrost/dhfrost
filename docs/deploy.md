@@ -6,26 +6,9 @@ The site is a fully static Astro build deployed to Cloudflare Pages.
 
 The `dhfrost` Pages project is connected to `davidhfrost/frosty`. Pushes to `main` auto-deploy to `https://dhfrost.com`. PRs get a `*.pages.dev` preview URL commented on the PR.
 
-Settings (recorded here so they can be recreated if the project is ever rebuilt):
+The Pages project, custom domain attachments, DNS records, and the `www → apex` Redirect Rule are all codified in OpenTofu under `infra/` (see ADR 0006). Build-related settings (project name `dhfrost`, command `pnpm build`, output `dist`, env var `NODE_VERSION=22`) live in HCL, not in this doc — `infra/pages.tf` is the source of truth. pnpm 10 is picked up automatically from the `packageManager` field in `package.json`.
 
-| Setting                  | Value                                          |
-| ------------------------ | ---------------------------------------------- |
-| Project name             | `dhfrost` (must match `wrangler.toml`)         |
-| Production branch        | `main`                                         |
-| Framework preset         | **None** (presets override `wrangler.toml`)    |
-| Build command            | `pnpm build`                                   |
-| Build output directory   | `dist`                                         |
-| Root directory           | repo root                                      |
-| Env var (Prod + Preview) | `NODE_VERSION=22`                              |
-
-pnpm 10 is picked up automatically from the `packageManager` field in `package.json`; no `PNPM_VERSION` env var needed.
-
-**Custom domains** attached to the Pages project:
-
-- `dhfrost.com` (apex, canonical; matches `site` in `astro.config.mjs`)
-- `www.dhfrost.com`
-
-A zone-level **Redirect Rule** named `www to apex` 301-redirects `www.dhfrost.com/*` to `https://dhfrost.com/$1`, preserving path and query string. The rule lives at `dhfrost.com` zone → Rules → Redirect Rules. Cloudflare also auto-redirects `http://` → `https://`.
+`http → https` upgrade is automatic at the Cloudflare edge and is not codified.
 
 ## Manual deploy via Wrangler (break-glass only)
 
