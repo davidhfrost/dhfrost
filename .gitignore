@@ -38,3 +38,4 @@ infra/*.tfstate
 infra/*.tfstate.*
 infra/plan.bin
 infra/crash.log
+infra/recon.sh
