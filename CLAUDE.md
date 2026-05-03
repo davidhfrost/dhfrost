@@ -145,7 +145,7 @@ Decisions made during implementation, dead ends, follow-ups.
 - **Astro:** prefer `.astro` components over framework components unless interactivity is required. If reaching for React, justify it in the commit message or an ADR.
 - **Tailwind v4:** use the CSS-first config (`@theme` in the main stylesheet), not a JS config file. Don't reintroduce `tailwind.config.js`.
 - **Content collections:** schema changes go in `src/content.config.ts` (note: top-level, not inside `src/content/`) and need a journal entry — they have ripple effects.
-- **Cloudflare Pages:** assume the build runs in CI. Don't rely on local-only env vars without documenting them in `.env.example`.
+- **Cloudflare Pages:** assume the build runs in CI. Don't rely on local-only env vars without documenting them in `.env.example`. The Pages project, custom domains, DNS, and the `www → apex` Redirect Rule are codified in OpenTofu under `infra/` (see ADR 0006); changes go through PR review and CI applies on merge to `main`.
 - **Images:** use Astro's `<Image>` component, not raw `<img>`. Source images live in `src/assets/`, not `public/`, unless they need a stable URL.
 - **CSS `ch` units are font-size-relative.** Two elements using the same `max-width: 60ch` but different `font-size` values will compute to different pixel widths and won't align. When two sibling elements need to share a column width, put the `max-width` and centering on a shared parent wrapper instead of duplicating it on each child.
 
