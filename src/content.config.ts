@@ -5,7 +5,7 @@ import { glob } from "astro/loaders";
  * Content collections using Astro 6 Content Layer API.
  *
  * Moved from src/content/config.ts and updated to use explicit glob loaders
- * as required by Astro 6 (see docs/decisions/0005-astro-6-upgrade.md).
+ * as required by Astro 6 (see ~/GitHub/notes/adr/frosty/0005-astro-6-upgrade.md).
  *
  * Collections are latent scaffolding: schemas are defined so adding
  * writing/projects later is a 5-minute job, not a refactor. No routes
