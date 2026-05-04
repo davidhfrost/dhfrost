@@ -29,12 +29,12 @@
     "@astrojs/mdx": "^5.0.4",
     "@astrojs/sitemap": "^3.2.0",
     "@tailwindcss/vite": "^4.2.4",
-    "astro": "^6.1.9",
+    "astro": "^6.2.1",
     "tailwindcss": "^4.2.4"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.8",
-    "@biomejs/biome": "^2.4.13",
+    "@astrojs/check": "^0.9.9",
+    "@biomejs/biome": "^2.4.14",
     "@resvg/resvg-js": "^2.6.2",
     "satori": "^0.26.0",
     "tsx": "^4.21.0",
