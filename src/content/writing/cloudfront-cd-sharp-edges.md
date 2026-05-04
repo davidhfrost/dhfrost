@@ -5,9 +5,7 @@ publishedAt: 2026-04-25
 draft: false
 ---
 
-CloudFront has a lot going for it. Deep AWS integration, a sprawling POP footprint, the generous 1TB free tier, Origin Shield closing the gaps that used to require third-party caching layers, and the egress economics from EC2 and S3 that quietly create real lock-in once you're committed.
-
-Continuous Deployment is one of the more interesting and under-discussed pieces of that story. I've been working on CD for a large production web application for a while, and the parts that matter most in practice are different from where the docs spend their time. The engineering tradeoffs underneath are genuinely interesting once you sit with them. Most of what feels like rough edges turns out to be a consequence of doing canary-style traffic shifting on top of an eventually-consistent, globally-distributed control plane. Once that lands, the rest of the operational picture follows.
+Continuous Deployment is one of the more interesting and under-discussed pieces of CloudFront. I've been working on CD for a large production web application for a while, and the parts that matter most in practice are different from where the docs spend their time. The engineering tradeoffs underneath are genuinely interesting once you sit with them. Most of what feels like rough edges turns out to be a consequence of doing canary-style traffic shifting on top of an eventually-consistent, globally-distributed control plane. Once that lands, the rest of the operational picture follows.
 
 ## The architectural tension
 
