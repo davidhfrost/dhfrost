@@ -51,7 +51,8 @@
       "sharp"
     ],
     "overrides": {
-      "yaml": "^2.8.3"
+      "yaml": "^2.8.3",
+      "fast-uri": ">=3.1.2"
     }
   }
 }
