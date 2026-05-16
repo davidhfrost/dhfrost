@@ -17,5 +17,6 @@ export async function GET(context) {
       link: `/writing/${post.id}`,
     })),
     customData: "<language>en-us</language>",
+    trailingSlash: false,
   });
 }
