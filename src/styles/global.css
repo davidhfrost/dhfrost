@@ -207,3 +207,33 @@ footer {
   padding: 0;
   font-size: 0.8125rem;
 }
+
+.post-body table {
+  margin: 2rem 0;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.post-body thead th {
+  text-align: left;
+  font-weight: 400;
+  color: var(--color-muted);
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-fg) 25%, transparent);
+}
+
+.post-body tbody td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-fg) 10%, transparent);
+  vertical-align: top;
+}
+
+.post-body tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.post-body tbody td:first-child {
+  color: var(--color-muted);
+}
