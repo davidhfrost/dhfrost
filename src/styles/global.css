@@ -3,7 +3,7 @@
 /*
  * dhfrost.com — design tokens and base rules.
  *
- * Rules (see CLAUDE.md + ~/GitHub/notes/plans/frosty/scaffold-v1.md):
+ * Rules (see CLAUDE.md):
  *   - Single column, left-aligned, 60ch measure.
  *   - Dark by default, honors prefers-color-scheme, no toggle.
  *   - Generous line-height (1.7), comfortable vertical rhythm.
