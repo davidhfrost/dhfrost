@@ -1,0 +1,31 @@
+---
+interface Props {
+  src: string;
+  alt?: string;
+  controlsDelay?: number;
+}
+
+const { src, alt, controlsDelay = 1500 } = Astro.props;
+---
+<video
+  src={src}
+  aria-label={alt}
+  autoplay
+  muted
+  loop
+  playsinline
+  preload="auto"
+  data-controls-delay={controlsDelay}
+></video>
+
+<script is:inline>
+  document.querySelectorAll("video[data-controls-delay]").forEach((v) => {
+    const delay = Number(v.dataset.controlsDelay) || 1500;
+    const reveal = () => v.setAttribute("controls", "");
+    if (v.readyState >= 2) {
+      setTimeout(reveal, delay);
+    } else {
+      v.addEventListener("loadeddata", () => setTimeout(reveal, delay), { once: true });
+    }
+  });
+</script>
