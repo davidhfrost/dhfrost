@@ -19,6 +19,9 @@ resource "cloudflare_dns_record" "www_pages" {
   proxied = true
 }
 
+# Verification token for Google Search Console ownership of dhfrost.com.
+# Safe to delete only after the property is fully unverified in Search Console;
+# Google re-checks the TXT periodically.
 resource "cloudflare_dns_record" "google_site_verification" {
   zone_id = var.zone_id
   name    = var.apex_domain

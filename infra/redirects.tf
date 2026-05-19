@@ -4,7 +4,11 @@
 # Cloudflare "Preserve query string" toggle is off — the wildcard handles it.
 
 resource "cloudflare_ruleset" "www_to_apex" {
-  zone_id     = var.zone_id
+  zone_id = var.zone_id
+
+  # "default" is the Cloudflare-required name for the zone-scoped entrypoint
+  # ruleset in this phase — not a placeholder. Description is intentionally
+  # blank for the same reason; per-rule descriptions live in the rules block.
   name        = "default"
   description = ""
   kind        = "zone"
