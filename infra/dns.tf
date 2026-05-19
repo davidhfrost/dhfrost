@@ -1,6 +1,5 @@
-# Only DNS records related to the dhfrost Pages site are managed here.
-# retrofolio.dhfrost.com and cdn.baseline.dhfrost.com belong to other Pages
-# projects and remain dashboard-managed (see ADR 0006).
+# DNS records for the dhfrost.com Pages site.
+# Other records on this zone are managed outside this configuration.
 
 resource "cloudflare_dns_record" "apex_pages" {
   zone_id = var.zone_id
