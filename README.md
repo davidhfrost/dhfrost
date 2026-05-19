@@ -72,18 +72,25 @@ docs/deploy.md               # cloudflare pages setup reference
 public/
   fonts/newsreader-latin-400.woff2  # shipped to users, preloaded
   favicon.svg
+  favicon-32.png
+  favicon-192.png
+  apple-touch-icon.png
+  site.webmanifest
   robots.txt
   og.png                     # generated at build time (gitignored)
 scripts/
   generate-og.ts             # satori + resvg, runs as prebuild
   fonts/newsreader-latin-400.ttf    # build-time only, not shipped
 src/
-  components/Meta.astro      # <head> metadata: title, description, canonical, OG, twitter
-  layouts/Base.astro         # html shell, font preload, <slot/>
+  components/Meta.astro      # <head> metadata: title, description, canonical, OG, twitter, Person JSON-LD
+  layouts/
+    Base.astro               # html shell, font preload, skip link, <main> landmark
+    Post.astro               # per-post wrapper used by writing/[...id].astro
   pages/
     index.astro              # homepage
+    404.astro                # not-found page
     writing/[...id].astro    # writing post pages
-    rss.xml.js               # /rss.xml feed
+    rss.xml.ts               # /rss.xml feed
   content.config.ts          # writing + projects collection schemas
   content/
     writing/                 # MDX posts
