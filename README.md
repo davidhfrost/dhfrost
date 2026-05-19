@@ -1,8 +1,8 @@
 # dhfrost.com
 
-Source code for [dhfrost.com](https://dhfrost.com), David Frost's personal website. Built with Astro 6, Tailwind v4 (CSS-first), TypeScript strict, no behavioral JS. Self-hosted Newsreader weight 400, Latin subset. Deployed to Cloudflare Pages.
+The personal site of David Frost: software engineer at Capital One, writing on cloud infrastructure, infrastructure as code, and CI/CD. Live at [dhfrost.com](https://dhfrost.com).
 
-This is a personal site, not a starter template — but the code is MIT-licensed and free to study or adapt.
+Built with Astro 6, Tailwind v4 (CSS-first), TypeScript strict, no behavioral JS. Self-hosted Newsreader weight 400, Latin subset. Deployed to Cloudflare Pages. Code is MIT-licensed and free to study or adapt.
 
 ## Design rules
 
@@ -16,7 +16,7 @@ Codified so they don't get diluted by accident:
 - No images on the index page
 - One self-hosted font, one weight (400), Latin subset
 - No first-party client JS (one inline JSON-LD block on the homepage for SEO; Cloudflare auto-injects a privacy-preserving Web Analytics beacon)
-- <50KB first-load, enforced in CI
+- <50KB combined homepage HTML + font, enforced in CI
 
 ## Writing
 
@@ -30,7 +30,7 @@ Codified so they don't get diluted by accident:
 - TypeScript strict via `astro check`
 - [Biome 2](https://biomejs.dev) for lint and format
 - [Satori](https://github.com/vercel/satori) + resvg for build-time OG image generation
-- Cloudflare Pages (static deploy via Git integration); DNS and Pages project codified in [OpenTofu](https://opentofu.org) under `infra/`
+- Cloudflare Pages (static deploy via Git integration); DNS and Pages project codified in [OpenTofu](https://opentofu.org) under [`infra/`](infra/README.md)
 - pnpm 10 / Node 22
 
 ## Local dev
@@ -133,4 +133,4 @@ Split intentionally so code and prose travel under different terms:
 
 ## Conventions
 
-See [`CLAUDE.md`](CLAUDE.md) for commit, branching, and worktree conventions.
+[`CLAUDE.md`](CLAUDE.md) is the live instruction file for AI coding agents working in this repo (Claude Code, Codex, etc.); it also documents the project's commit, branching, and worktree conventions for human contributors.
