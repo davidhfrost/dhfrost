@@ -4,12 +4,12 @@ import { glob } from "astro/loaders";
 /**
  * Content collections using Astro 6 Content Layer API.
  *
- * Moved from src/content/config.ts and updated to use explicit glob loaders
- * as required by Astro 6.
+ * `writing` is consumed by src/pages/writing/[...id].astro,
+ * src/pages/rss.xml.ts, and src/pages/index.astro.
  *
- * Collections are latent scaffolding: schemas are defined so adding
- * writing/projects later is a 5-minute job, not a refactor. No routes
- * consume these yet.
+ * `projects` is latent scaffolding — schema is defined so adding
+ * project entries later is a 5-minute job, but no route consumes it
+ * yet and the directory holds no MDX files.
  */
 
 const writing = defineCollection({
