@@ -1,8 +1,8 @@
 # infra/ — Cloudflare IaC for dhfrost.com
 
-OpenTofu configuration that codifies the Cloudflare-side state for `dhfrost.com`: the `dhfrost` Pages project, its custom domain attachments, every DNS record on the zone, the `www → apex` Redirect Rule, and a small set of pinned zone settings.
+OpenTofu configuration that codifies the Cloudflare-side state for `dhfrost.com`: the `dhfrost` Pages project, its custom domain attachments, the DNS records owned by this project, and the `www → apex` Redirect Rule.
 
-What this directory does **not** do: drive the build or deploy. Builds still run via Cloudflare's Pages Git integration on every push to `main` (see ADR 0004). OpenTofu only describes the surrounding configuration.
+What this directory does **not** do: drive the build or deploy. Builds still run via Cloudflare's Pages Git integration on every push to `main`. OpenTofu only describes the surrounding configuration.
 
 ## Bootstrap (one-time)
 
@@ -60,10 +60,8 @@ tofu plan
 | `providers.tf` | Cloudflare provider                                            |
 | `variables.tf` | Account ID, zone ID, project name                              |
 | `pages.tf`     | `cloudflare_pages_project` + `cloudflare_pages_domain` x2      |
-| `dns.tf`       | All DNS records on the `dhfrost.com` zone                      |
+| `dns.tf`       | DNS records owned by this project (other records on the zone are managed outside) |
 | `redirects.tf` | `cloudflare_ruleset` for `www → apex` 301                      |
-| `zone.tf`      | Pinned zone settings (SSL mode, TLS minimum, always-use-HTTPS) |
-| `imports.tf`   | `import {}` blocks; deleted after the first clean apply        |
 
 ## Recon (filling in resource HCL from current dashboard state)
 
@@ -91,16 +89,11 @@ curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
   | jq '.result | {name, production_branch, source, build_config, deployment_configs}'
 ```
 
-## Import
+## Reconciling drift
 
-The first apply runs `import {}` blocks defined in `imports.tf`. After `tofu plan` shows zero diff and the import has succeeded, delete `imports.tf` in a follow-up commit. Resource IDs:
+If `tofu plan` ever shows a non-zero diff against the live state, the HCL no longer matches the dashboard. Fix the HCL — do not let `apply` mutate live config. Use the recon snippets above to see what the dashboard actually has, then update the resource definitions to match before re-running `plan`.
 
-- `cloudflare_pages_project.dhfrost`: `<account_id>/dhfrost`
-- `cloudflare_pages_domain.apex` / `.www`: `<account_id>/dhfrost/<domain>`
-- `cloudflare_dns_record.<name>`: `<zone_id>/<record_id>`
-- `cloudflare_ruleset.www_to_apex`: `<zone_id>/<ruleset_id>`
-
-If `tofu plan` after import shows non-zero diff, the HCL doesn't match dashboard state. Fix the HCL — do not let `apply` mutate live config.
+If you need to absorb a brand-new resource that was created in the dashboard (rather than via this configuration), add an `import {}` block to a temporary `imports.tf`, run `tofu plan` and `tofu apply` once to bring the resource under management, then delete `imports.tf` in a follow-up commit before the next apply.
 
 ## CI
 
