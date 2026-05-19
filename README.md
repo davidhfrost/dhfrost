@@ -15,8 +15,8 @@ Codified so they don't get diluted by accident:
 - Foreground, background, and one muted gray. No other colors.
 - No images on the index page
 - One self-hosted font, one weight (400), Latin subset
-- No client JS for behavior (one inline JSON-LD block on the homepage for SEO)
-- <50KB first-load, Lighthouse 100/100/100/100
+- No first-party client JS (one inline JSON-LD block on the homepage for SEO; Cloudflare auto-injects a privacy-preserving Web Analytics beacon)
+- <50KB first-load, enforced in CI
 
 ## Writing
 
