@@ -180,6 +180,18 @@ footer {
   letter-spacing: -0.01em;
 }
 
+.post-body figure.diagram {
+  margin: 2rem calc(50% - 50vw + 1.5rem);
+  display: flex;
+  justify-content: center;
+}
+
+.post-body figure.diagram img {
+  width: 100%;
+  max-width: min(960px, calc(100vw - 3rem));
+  height: auto;
+}
+
 .post-body h3 {
   font-size: 1.0625rem;
   font-weight: 400;
