@@ -14,8 +14,7 @@ const recentPosts = (
   .slice(0, 3);
 ---
 <Base title={title} description={description} personSchema={true}>
-  <main>
-    <h1>David Frost</h1>
+  <h1>David Frost</h1>
     <p>{tagline}</p>
 
     <h2>Now</h2>
@@ -55,5 +54,4 @@ const recentPosts = (
     <p>
       dhfrost.com: yes, this one. Astro and Tailwind on Cloudflare Pages, with the surrounding Cloudflare config codified in OpenTofu. Site and infra both ship through CI/CD: preview on PR, deploy on merge.
     </p>
-  </main>
 </Base>
