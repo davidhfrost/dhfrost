@@ -1,0 +1,25 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Base from "./Base.astro";
+
+interface Props {
+  project: CollectionEntry<"projects">;
+}
+
+const { project } = Astro.props;
+const { title, description, url, repo, year } = project.data;
+---
+<Base title={`${title} · David Frost`} description={description}>
+  <p><a href="/">← David Frost</a></p>
+  <article>
+    <h1>{title}</h1>
+    <p class="project-meta">
+      <time datetime={`${year}`}>{year}</time>
+      {url && <> · <a href={url}>Live</a></>}
+      {repo && <> · <a href={repo}>Repo</a></>}
+    </p>
+    <div class="post-body">
+      <slot />
+    </div>
+  </article>
+</Base>

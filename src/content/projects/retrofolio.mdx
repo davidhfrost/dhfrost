@@ -1,0 +1,60 @@
+---
+title: "Retrofolio"
+description: "A portfolio backtester I built to explore portfolio theory and exercise full-stack production engineering."
+url: "https://retrofolio.dhfrost.com"
+year: 2026
+featured: true
+---
+
+import demo from "../../assets/retrofolio-demo.mp4";
+import architecture from "../../assets/retrofolio-architecture.svg";
+
+I turned 18 in February 2020. The week of my birthday, I opened a Robinhood account and put my life savings into TQQQ. A month later, COVID arrived and the market went vertical in the wrong direction. I had read just enough about leverage to be dangerous and not enough about volatility drag to be cautious. Retrofolio is, in part, the tool I wish I'd had then: pick a set of tickers and weights, a date range, and a rebalance schedule, and see what actually would have happened.
+
+I built it because I wanted to learn portfolio theory the right way this time, and because I wanted a side project to push hard on production engineering: async job orchestration, deploy automation, infra-as-code, and the boundary between services.
+
+<p>
+  <a href="https://retrofolio.dhfrost.com">Try it →</a>
+</p>
+
+<video src={demo} autoplay muted loop playsinline preload="auto" aria-label="Retrofolio backtest UI walkthrough" />
+
+## What running the backtests actually told me
+
+The original reason I built Retrofolio was to test strategies I'd seen argued about on [r/LETFs](https://www.reddit.com/r/LETFs/) and the Bogleheads forum and reach my own conclusions instead of trusting someone else's chart.
+
+The first one I ran was **Hedgefundie's Excellent Adventure**: 55% UPRO / 45% TMF, the famous 3x-leveraged-stocks-and-bonds portfolio that originated on Bogleheads and got a second life as the canonical "default" portfolio on r/LETFs. Over 2010 to 2024, quarterly rebalanced, it returned 22.3% CAGR against SPY's 12.9%. The catch is the path: a 70.8% peak-to-trough drawdown in 2022 when stocks and long-duration bonds fell together. The CAGR is real; whether you would have actually held through a 70% drawdown is a different question, and that path-dependence is the entire critique of HFEA in one chart.
+
+I also ran the **ZROZ + GLD + SSO** variant that circulates on r/LETFs as a "smarter HFEA": 50% SSO (2x equities), 25% ZROZ (long-duration treasuries), 25% GLD (gold). Over the same window it returned 14.9% CAGR with a 37.1% max drawdown and a 0.90 Sharpe — better risk-adjusted return than HFEA *and* better than holding plain SPY (Sharpe 0.74, max drawdown 33.7%). The gold leg did real diversification work in 2022 that long-duration treasuries could not.
+
+A separate lesson the leveraged-ETF backtests made obvious is **how much volatility drag actually costs**. HFEA holds 55% of a 3x-leveraged equity ETF, but its 14-year CAGR was 1.73× SPY's, not 3×. Most of the gap is volatility decay: 3x-daily ETFs compound badly through volatile periods. The bigger the daily moves, the more the geometric return diverges from the arithmetic one. Anyone who has read about LETFs has read this; running it on real data is what made it intuitive.
+
+Methodology caveat: the window starts in 2010, which is when UPRO, TMF, ZROZ, and SSO had all already launched, so there's no synthetic backfill in any of these runs. The corollary is that the window excludes 2008, when leveraged strategies would have been historically devastating. The numbers above are "leveraged ETFs in the friendliest possible regime," not "leveraged ETFs through a full cycle."
+
+## End-to-end architecture
+
+A backtest request enters the Next.js frontend, hits nginx on the VM, and routes by path. `/api/*` goes to FastAPI; everything else goes to Next. FastAPI authenticates the JWT, validates the Pydantic request, enqueues a Celery task via Redis, and returns `202 Accepted` with a job ID. A worker picks the task up, fetches market data (Redis-cached), runs the simulation, writes a row to `backtest_runs` in Postgres, and stores the serialized result back in Redis. The browser polls a job-status endpoint until the task succeeds, then navigates to the run detail page, which reads from Postgres directly.
+
+<figure class="diagram">
+  <img src={architecture.src} alt="Retrofolio request flow: browser to Cloudflare to nginx, splitting between Next.js and FastAPI; FastAPI enqueues Celery tasks via Redis to a worker that writes to Postgres" />
+</figure>
+
+Reads and writes split cleanly. One write endpoint (`POST /backtest`) always goes through the queue. Every read path (history list, run detail, CSV export, job status) goes straight to Postgres or Redis without touching a worker. Persistent state is small: three tables (`users`, `backtest_runs`, `revoked_tokens`), with the heavy backtest output stored as JSON columns on the run row. Redis is the Celery broker, the result backend, and the market-data cache, but nothing in Redis is the system of record.
+
+## Three decisions
+
+**Async job pipeline.** A backtest depends on an external market-data API, so the work belongs off the request thread by design. `POST /backtest` returns `202 Accepted` with a job ID and the simulation runs on a Celery worker pool configured with `task_acks_late=True` and `worker_prefetch_multiplier=1`, which means a worker that dies mid-backtest hands the job back to the queue instead of silently dropping it. The frontend polls a job-status endpoint that surfaces five named progress stages (Fetching market data, Simulating portfolio, Computing metrics, Fetching benchmark, Saving results). I picked five stages over a percent bar because the work isn't uniformly divisible across stages, and a stuck stage name is more honest than a fake 47%.
+
+**Single-VM production stack.** Production is one Compute Engine VM running a six-service Docker Compose stack (nginx, frontend, backend, worker, Postgres, Redis), fronted by Cloudflare in Full mode against a self-signed origin cert. The VM, VPC, firewall rules, GCS backup bucket, and deploy service account live in Terraform. I didn't reach for GKE or Cloud Run. A side project that fits on one VM should run on one VM, and codifying the network and IAM is the part that carries over to bigger systems.
+
+**Deploy pipeline with automatic rollback.** Two GitHub Actions workflows chained by `workflow_run`. The first builds and pushes the three images to Docker Hub in parallel with layer caching. The second runs the deploy itself, and most of the design effort went into the failure paths. A `flock` blocks concurrent deploys, the workflow snapshots Postgres with `pg_dump` before any state change, Alembic migrations run in a one-shot container instead of the long-lived backend, and a `/health` poll inside the backend container gates the cutover for up to 120 seconds. On health-check failure the workflow restores the snapshot and restarts the stack automatically. CI runs the exact same matrix that `scripts/preflight.sh` runs locally, so most failures surface in 30 seconds at my desk instead of 4 minutes in CI.
+
+## What I'd do next
+
+Three things on the list.
+
+**Monte Carlo forward simulation.** A backtest is one realized path. I want to fit a return distribution to the historical data, sample from it thousands of times, and show the spread of outcomes a strategy *could* have produced instead of just the one it did.
+
+**Factor attribution against Fama-French.** Summary stats tell you a portfolio returned X%. Factor decomposition tells you how much of that came from market exposure, small-cap tilt, and value tilt rather than skill. It's the right next step for distinguishing "this strategy works" from "this strategy was long the right factors during a friendly window."
+
+**International equities done properly.** Right now you can't backtest a US/Europe/Asia split without manually converting currencies. Adding spot rates and home-currency reinvestment is mechanical work, but it unlocks the question of whether US-equity outperformance was the asset class or the dollar.
