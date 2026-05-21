@@ -28,8 +28,16 @@ const projects = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
-    url: z.string().url().optional(),
-    repo: z.string().url().optional(),
+    url: z
+      .string()
+      .url()
+      .refine((u) => /^https?:\/\//i.test(u), { message: "url must be http(s)" })
+      .optional(),
+    repo: z
+      .string()
+      .url()
+      .refine((u) => /^https?:\/\//i.test(u), { message: "repo must be http(s)" })
+      .optional(),
     year: z.number().int().min(2000).max(2100),
     featured: z.boolean().default(false),
   }),
