@@ -22,11 +22,6 @@ concurrency:
 env:
   TF_IN_AUTOMATION: "1"
   TF_INPUT: "0"
-  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-  AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-  TF_VAR_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-  TF_VAR_zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
 
 jobs:
   plan:
@@ -54,6 +49,9 @@ jobs:
         run: tofu fmt -check -recursive
 
       - name: tofu init
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
         run: tofu init -backend-config=backend.hcl
 
       - name: tofu validate
@@ -61,6 +59,12 @@ jobs:
 
       - name: tofu plan
         id: plan
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          TF_VAR_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          TF_VAR_zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
         run: |
           set +e
           tofu plan -no-color -out=plan.bin > plan.txt 2>&1
@@ -113,7 +117,16 @@ jobs:
           EOF
 
       - name: tofu init
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
         run: tofu init -backend-config=backend.hcl
 
       - name: tofu apply
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          TF_VAR_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          TF_VAR_zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
         run: tofu apply -auto-approve
