@@ -46,6 +46,12 @@ const websiteJsonLd = {
   alternateName: "davidhfrost",
   url: `${siteOrigin}/`,
 };
+
+// Escape `<`, `>`, `&` so a stray `</script>` or `<!--` in a future schema
+// value can't break out of the surrounding <script> tag. JSON-LD parsers
+// decode the \uXXXX escapes back to the original characters.
+const jsonLd = (obj: unknown) =>
+  JSON.stringify(obj).replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026");
 ---
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -78,8 +84,8 @@ const websiteJsonLd = {
 <link rel="alternate" type="application/rss+xml" title="David Frost" href="/rss.xml" />
 
 {homepageSchema && (
-  <script type="application/ld+json" set:html={JSON.stringify(personJsonLd)} />
+  <script type="application/ld+json" set:html={jsonLd(personJsonLd)} />
 )}
 {homepageSchema && (
-  <script type="application/ld+json" set:html={JSON.stringify(websiteJsonLd)} />
+  <script type="application/ld+json" set:html={jsonLd(websiteJsonLd)} />
 )}
