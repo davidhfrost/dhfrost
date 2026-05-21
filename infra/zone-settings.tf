@@ -8,20 +8,15 @@
 # currently holds; review the plan output before merging if those values
 # differ from what's declared below.
 
-# TEMPORARY: SSL mode is "full" rather than "strict" because the
-# retrofolio.dhfrost.com origin currently serves a self-signed cert.
-# "strict" rejects self-signed origin certs and 526s the subdomain.
-#
-# Flip back to "strict" once the retrofolio origin presents a cert
-# trusted by Cloudflare (the standard fix is a Cloudflare Origin
-# Certificate installed at the origin VM; valid 15 years, no renewal).
-#
-# Browser-to-Cloudflare leg remains TLS 1.3 + HSTS regardless. Only
-# the Cloudflare-to-origin hop is affected by this setting.
+# Require a valid trusted cert on the Cloudflare-to-origin hop. For
+# dhfrost.com itself this is a no-op (Pages always presents a valid
+# Cloudflare-signed cert). For subdomains pointing at external origins
+# (e.g. retrofolio.dhfrost.com), the origin must present a publicly-
+# trusted or Cloudflare Origin CA cert; self-signed certs will 526.
 resource "cloudflare_zone_setting" "ssl" {
   zone_id    = var.zone_id
   setting_id = "ssl"
-  value      = "full"
+  value      = "strict"
 }
 
 # 301 any plaintext HTTP request to HTTPS at the edge.
