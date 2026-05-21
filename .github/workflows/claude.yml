@@ -38,4 +38,9 @@ jobs:
           # Allows Claude to read CI results on PRs
           additional_permissions: |
             actions: read
+          # Disallow risky tools. Claude can still read files, edit code,
+          # and run safe commands; it cannot fetch URLs or run network
+          # or destructive shell commands.
+          claude_args: |
+            --disallowedTools "Bash(curl:*),Bash(wget:*),Bash(rm:*),Bash(sudo:*),WebFetch"
 
