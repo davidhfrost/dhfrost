@@ -62,3 +62,47 @@ resource "cloudflare_dns_record" "null_mx" {
   ttl      = 3600
   proxied  = false
 }
+
+# CAA records constrain which CAs may issue certificates for this domain.
+# Cloudflare's Universal SSL currently provisions through Let's Encrypt and
+# Google Trust Services, so we pin issuance to those two. The issuewild ";"
+# record blocks wildcard issuance entirely; the site only needs apex + www
+# certs, both non-wildcard.
+resource "cloudflare_dns_record" "caa_issue_letsencrypt" {
+  zone_id = var.zone_id
+  name    = var.apex_domain
+  type    = "CAA"
+  ttl     = 3600
+  proxied = false
+  data = {
+    flags = 0
+    tag   = "issue"
+    value = "letsencrypt.org"
+  }
+}
+
+resource "cloudflare_dns_record" "caa_issue_google" {
+  zone_id = var.zone_id
+  name    = var.apex_domain
+  type    = "CAA"
+  ttl     = 3600
+  proxied = false
+  data = {
+    flags = 0
+    tag   = "issue"
+    value = "pki.goog"
+  }
+}
+
+resource "cloudflare_dns_record" "caa_issuewild_none" {
+  zone_id = var.zone_id
+  name    = var.apex_domain
+  type    = "CAA"
+  ttl     = 3600
+  proxied = false
+  data = {
+    flags = 0
+    tag   = "issuewild"
+    value = ";"
+  }
+}
