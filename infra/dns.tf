@@ -30,3 +30,35 @@ resource "cloudflare_dns_record" "google_site_verification" {
   ttl     = 3600
   proxied = false
 }
+
+# Email-spoofing defenses for an apex that does not send or receive mail.
+# SPF declares no authorized senders; DMARC instructs receivers to reject
+# anything that fails alignment; null MX (RFC 7505) declares the domain
+# accepts no mail at all.
+resource "cloudflare_dns_record" "apex_spf" {
+  zone_id = var.zone_id
+  name    = var.apex_domain
+  type    = "TXT"
+  content = "\"v=spf1 -all\""
+  ttl     = 3600
+  proxied = false
+}
+
+resource "cloudflare_dns_record" "dmarc" {
+  zone_id = var.zone_id
+  name    = "_dmarc.${var.apex_domain}"
+  type    = "TXT"
+  content = "\"v=DMARC1; p=reject; adkim=s; aspf=s\""
+  ttl     = 3600
+  proxied = false
+}
+
+resource "cloudflare_dns_record" "null_mx" {
+  zone_id  = var.zone_id
+  name     = var.apex_domain
+  type     = "MX"
+  content  = "."
+  priority = 0
+  ttl      = 3600
+  proxied  = false
+}
