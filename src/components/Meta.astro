@@ -3,17 +3,18 @@
  * Page-level <head> metadata: title, description, canonical, OG, Twitter.
  * Used by Base.astro on every page. Keep dumb — no DOM effects, no JS.
  *
- * Pass personSchema={true} only on the homepage — it emits a JSON-LD Person
- * block that tells Google this page is the entity hub for David Frost.
+ * Pass homepageSchema={true} only on the homepage. It emits two JSON-LD
+ * blocks: Person (entity hub for David Frost) and WebSite (whose `name`
+ * Google uses as the SERP "site name" instead of the bare host).
  */
 interface Props {
   title: string;
   description: string;
   image?: string;
-  personSchema?: boolean;
+  homepageSchema?: boolean;
 }
 
-const { title, description, image = "/og.png", personSchema = false } = Astro.props;
+const { title, description, image = "/og.png", homepageSchema = false } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).toString();
 const ogImage = new URL(image, Astro.site ?? Astro.url).toString();
@@ -36,6 +37,14 @@ const personJsonLd = {
   sameAs: ["https://github.com/davidhfrost", "https://www.linkedin.com/in/davidhfrost"],
   description: "Software engineer working on cloud infrastructure at Capital One.",
   knowsAbout: ["Cloud infrastructure", "Infrastructure as code", "CI/CD", "Distributed systems"],
+};
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "David Frost",
+  alternateName: "dhfrost.com",
+  url: `${siteOrigin}/`,
 };
 ---
 <meta charset="utf-8" />
@@ -68,6 +77,9 @@ const personJsonLd = {
 
 <link rel="alternate" type="application/rss+xml" title="David Frost" href="/rss.xml" />
 
-{personSchema && (
+{homepageSchema && (
   <script type="application/ld+json" set:html={JSON.stringify(personJsonLd)} />
+)}
+{homepageSchema && (
+  <script type="application/ld+json" set:html={JSON.stringify(websiteJsonLd)} />
 )}

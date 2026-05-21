@@ -13,7 +13,7 @@ const recentPosts = (
   .sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf())
   .slice(0, 3);
 ---
-<Base title={title} description={description} personSchema={true}>
+<Base title={title} description={description} homepageSchema={true}>
   <h1>David Frost</h1>
     <p>{tagline}</p>
 
