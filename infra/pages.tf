@@ -7,7 +7,7 @@ resource "cloudflare_pages_project" "dhfrost" {
     type = "github"
     config = {
       owner                          = "davidhfrost"
-      repo_name                      = "frosty"
+      repo_name                      = "dhfrost"
       production_branch              = "main"
       production_deployments_enabled = true
       preview_deployment_setting     = "all"

@@ -16,10 +16,12 @@ interface Props {
 
 const { title, description, image = "/og.png", homepageSchema = false } = Astro.props;
 
-const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).toString();
-const ogImage = new URL(image, Astro.site ?? Astro.url).toString();
+// Astro.site is set in astro.config.mjs. If it's ever missing, fail loudly
+// rather than silently emitting request-host URLs as canonicals.
+const canonical = new URL(Astro.url.pathname, Astro.site!).toString();
+const ogImage = new URL(image, Astro.site!).toString();
 
-const siteOrigin = (Astro.site ?? Astro.url).toString().replace(/\/$/, "");
+const siteOrigin = Astro.site!.toString().replace(/\/$/, "");
 
 const personJsonLd = {
   "@context": "https://schema.org",
@@ -48,10 +50,17 @@ const websiteJsonLd = {
 };
 
 // Escape `<`, `>`, `&` so a stray `</script>` or `<!--` in a future schema
-// value can't break out of the surrounding <script> tag. JSON-LD parsers
-// decode the \uXXXX escapes back to the original characters.
+// value can't break out of the surrounding <script> tag. Also escape
+// U+2028 and U+2029, which are valid in JSON but terminate JS string
+// literals in some interpreters. JSON-LD parsers decode the \uXXXX
+// escapes back to the original characters.
 const jsonLd = (obj: unknown) =>
-  JSON.stringify(obj).replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026");
+  JSON.stringify(obj)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
 ---
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />

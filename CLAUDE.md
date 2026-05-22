@@ -2,8 +2,6 @@
 
 This is a personal website built with Astro 6, Tailwind v4, and deployed to Cloudflare Pages. Treat it as a long-lived project I'll come back to in bursts, not a one-shot build. Optimize for *future me being able to pick up where we left off*.
 
-Universal workflow rules (worktrees, commits, PRs, credentials, journaling, ADRs, plans) live in `~/GitHub/CLAUDE.md`. This file only covers what's specific to this repo.
-
 ## Hard rules
 
 1. **Run `pnpm lint && pnpm build` before committing** anything that touches `.astro`, `.ts`, `.tsx`, `.css`, config, or `tailwind.config.*`. Both must pass — lint catches empty blocks, formatting, and type errors that build silently ignores.

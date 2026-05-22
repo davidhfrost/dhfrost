@@ -7,10 +7,10 @@
   "homepage": "https://dhfrost.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/davidhfrost/frosty"
+    "url": "https://github.com/davidhfrost/dhfrost"
   },
   "bugs": {
-    "url": "https://github.com/davidhfrost/frosty/issues"
+    "url": "https://github.com/davidhfrost/dhfrost/issues"
   },
   "scripts": {
     "dev": "astro dev",
