@@ -1,1 +1,3 @@
+# Astro's sitemap integration emits /sitemap-index.xml. Some crawlers probe
+# the conventional /sitemap.xml path; this 301 lands them on the real index.
 /sitemap.xml /sitemap-index.xml 301
