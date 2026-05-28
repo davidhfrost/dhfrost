@@ -1,11 +1,12 @@
 ---
 import { getCollection } from "astro:content";
+import { profile } from "../data/profile";
 import Base from "../layouts/Base.astro";
 
-const title = "David Frost · Software Engineer at Capital One";
+const title = `${profile.name} · ${profile.jobTitle} at ${profile.employer.name}`;
 const description =
   "David Frost is a software engineer at Capital One. Writing on software engineering, with a focus on cloud infrastructure, infrastructure as code, and CI/CD. Side project: Retrofolio, a portfolio backtester.";
-const tagline = "Software engineer working on cloud infrastructure at Capital One.";
+const tagline = profile.tagline;
 
 const recentPosts = (
   await getCollection("writing", ({ data }) => (import.meta.env.PROD ? !data.draft : true))
