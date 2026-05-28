@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 560" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <!--
+    Vertical timeline: four events from PR merge to first production error.
+    Vertical distance between markers is proportional to elapsed seconds.
+    Total span 13m 8s. Highlighted "6 min" gap from Sentry-live to first error.
+  -->
+
+  <!-- vertical track -->
+  <line x1="100" y1="80" x2="100" y2="450" stroke="#94a3b8" stroke-width="2"/>
+
+  <!-- highlighted 6-minute span: Sentry live (y=282.37) -> first error (y=450) -->
+  <rect x="88" y="282.37" width="24" height="167.63" fill="#fbbf24" fill-opacity="0.35" rx="4"/>
+  <text x="60" y="370" text-anchor="end" font-size="13" font-weight="700" fill="#92400e">6 min</text>
+
+  <!-- 1. Sentry PR merged: 22:33:52 (0s) -->
+  <circle cx="100" cy="80" r="7" fill="#64748b"/>
+  <text x="140" y="76" font-size="14" font-weight="600" fill="#334155">Sentry PR merged</text>
+  <text x="140" y="95" font-size="12" fill="#475569" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">6:33 PM EDT</text>
+
+  <!-- 2. Deploy started: 22:38:25 (273s) -->
+  <circle cx="100" cy="208.18" r="6" fill="#94a3b8"/>
+  <text x="140" y="204" font-size="14" font-weight="600" fill="#334155">deploy started</text>
+  <text x="140" y="223" font-size="12" fill="#475569" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">6:38 PM EDT</text>
+
+  <!-- 3. Sentry live: 22:41:03 (431s) -->
+  <circle cx="100" cy="282.37" r="10" fill="#16a34a" stroke="#fff" stroke-width="2"/>
+  <text x="140" y="279" font-size="14" font-weight="700" fill="#166534">Sentry live in prod</text>
+  <text x="140" y="298" font-size="12" fill="#475569" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">6:41 PM EDT</text>
+
+  <!-- 4. First error in prod: 22:47:00 (788s) -->
+  <circle cx="100" cy="450" r="10" fill="#dc2626" stroke="#fff" stroke-width="2"/>
+  <text x="140" y="446" font-size="14" font-weight="700" fill="#991b1b">first error captured</text>
+  <text x="140" y="465" font-size="12" fill="#475569" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">6:47 PM EDT</text>
+
+  <!-- footer summary -->
+  <line x1="40" y1="510" x2="560" y2="510" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="300" y="532" text-anchor="middle" font-size="13" fill="#1e293b">
+    Sentry live to first real signal:
+    <tspan font-weight="700" fill="#92400e">6 minutes</tspan>.
+  </text>
+</svg>
