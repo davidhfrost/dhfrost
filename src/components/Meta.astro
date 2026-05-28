@@ -7,6 +7,8 @@
  * blocks: Person (entity hub for David Frost) and WebSite (whose `name`
  * Google uses as the SERP "site name" instead of the bare host).
  */
+import { profile } from "../data/profile";
+
 interface Props {
   title: string;
   description: string;
@@ -26,26 +28,26 @@ const siteOrigin = Astro.site!.toString().replace(/\/$/, "");
 const personJsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
-  name: "David Frost",
-  alternateName: "davidhfrost",
+  name: profile.name,
+  alternateName: profile.alternateName,
   url: `${siteOrigin}/`,
   image: `${siteOrigin}/og.png`,
-  jobTitle: "Software Engineer",
+  jobTitle: profile.jobTitle,
   worksFor: {
     "@type": "Organization",
-    name: "Capital One",
-    url: "https://www.capitalone.com",
+    name: profile.employer.name,
+    url: profile.employer.url,
   },
-  sameAs: ["https://github.com/davidhfrost", "https://www.linkedin.com/in/davidhfrost"],
-  description: "Software engineer working on cloud infrastructure at Capital One.",
-  knowsAbout: ["Cloud infrastructure", "Infrastructure as code", "CI/CD", "Distributed systems"],
+  sameAs: [profile.social.github, profile.social.linkedin],
+  description: profile.tagline,
+  knowsAbout: profile.knowsAbout,
 };
 
 const websiteJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  name: "David Frost",
-  alternateName: "davidhfrost",
+  name: profile.name,
+  alternateName: profile.alternateName,
   url: `${siteOrigin}/`,
 };
 

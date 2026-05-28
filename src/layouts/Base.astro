@@ -1,5 +1,6 @@
 ---
 import Meta from "../components/Meta.astro";
+import { profile } from "../data/profile";
 import "../styles/global.css";
 
 interface Props {
@@ -29,9 +30,9 @@ const { title, description, homepageSchema } = Astro.props;
         <slot />
       </main>
       <footer>
-        <a href="https://github.com/davidhfrost">GitHub</a>
+        <a href={profile.social.github}>GitHub</a>
         {" · "}
-        <a href="https://www.linkedin.com/in/davidhfrost">LinkedIn</a>
+        <a href={profile.social.linkedin}>LinkedIn</a>
         {" · "}
         <a href="/rss.xml">RSS</a>
       </footer>
