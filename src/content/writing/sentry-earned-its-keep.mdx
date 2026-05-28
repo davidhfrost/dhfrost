@@ -1,0 +1,63 @@
+---
+title: "Sentry earned its keep before I closed the terminal"
+description: "I shipped backend error aggregation at 6:41 PM. At 6:47 the first real production error showed up in the dashboard. I'd already seen it myself in the drawer, but the wiring caught a bug the test suite couldn't have."
+publishedAt: 2026-05-27
+draft: false
+---
+
+import { Image } from "astro:assets";
+import sentryIssue from "../../assets/sentry-six-minutes/sentry-issue.png";
+import drawerError from "../../assets/sentry-six-minutes/drawer-error.png";
+import timelineLight from "../../assets/sentry-six-minutes/timeline-light.svg";
+import timelineDark from "../../assets/sentry-six-minutes/timeline-dark.svg";
+
+
+I asked the conversational agent to compare two leveraged backtests. The drawer rendered both tool-call cards cleanly, then printed a red Anthropic error at the top of the message stream. Six minutes earlier I'd finished deploying Sentry to production.
+
+<Image src={drawerError} alt="The agent drawer at the moment of failure: two get_backtest_result tool-call cards rendered cleanly, then a red Anthropic error printed above them. The error message reads 'prompt is too long: 218468 tokens > 200000 maximum'." />
+
+`prompt is too long: 218468 tokens > 200000 maximum`. The agent had fetched two long-horizon backtest results. Each response carried the full equity curve, drawdown series, and rolling returns: around 3500 daily entries per series for a 14-year backtest, three series per response, serializing to roughly 150KB of JSON. Two of those plus the conversation history and tool schemas blew through the 200,000-token input cap.
+
+The fix was a smaller response shape: identification fields, summary metrics, top three drawdowns, and just the first and last points of the equity curve for "grew from X to Y" narration. Everything else dropped. A regression test now asserts the JSON stays under 4KB, well under the threshold that caused the failure.
+
+## What a synthetic test can't catch
+
+The tool shipped with three tests: owner-success, unknown-ID returns `not_found`, and another-user's-ID returns the byte-identical `not_found` (no existence leak). They covered correctness, error handling, and existence-leak prevention. Output size wasn't measured.
+
+Every fixture looked like this:
+
+```python
+equity_curve=[
+    {"date": "2014-01-02", "portfolio_value": 100.0},
+    {"date": "2024-01-02", "portfolio_value": 220.5},
+]
+```
+
+Two points. A 14-year daily backtest has around 3500.
+
+**Fixture size is a hidden assumption in test coverage.** Test inputs get sized for code review; production inputs are whatever the user happens to throw at the system. With two-point fixtures the response stayed 200 bytes and CI was green from the moment the tool merged. The same tool with realistic-size fixtures would have produced 150KB responses, and a `len(json.dumps(response)) < 4096` assertion (the regression test I added after the fact) would have failed loudly.
+
+## Where Sentry came in
+
+I had already diagnosed the bug from the drawer message before the Sentry tab finished loading. The alert was redundant here.
+
+<picture>
+  <source srcset={timelineDark.src} media="(prefers-color-scheme: dark)" />
+  <img src={timelineLight.src} alt="Vertical timeline: Sentry PR merged at 6:33 PM EDT, deploy started at 6:38, Sentry live in prod at 6:41, first error captured at 6:47. Six-minute span highlighted between the last two." />
+</picture>
+
+But the same wiring captured the event upstream, with stack trace and request ID and trace ID intact, and it'll do the same for the next bug I'm not personally sitting in front of.
+
+<Image src={sentryIssue} alt="Sentry dashboard showing the BadRequestError six minutes after the wiring went live. One event, one user, unhandled. The chart spike sits at 6:47 PM EDT." />
+
+## The frontend half
+
+Validating the frontend SDK from my own browser surfaced a different bug. uBlock Origin bundles EasyPrivacy by default, which blocks `*.ingest.sentry.io`. I'd had uBlock installed for years. The SDK fired. The envelope never left the device. A silent dashboard reads as "no frontend errors" whether the real state is "no errors happened" or "the browser refused to send them."
+
+Sentry's standard fix is a same-origin tunnel proxying events through your own domain. I left the gap; routing around an explicit user preference felt worse than a partial dashboard.
+
+## The pattern
+
+Both bugs lived in dimensions the test suite never named: response size, delivery success. CI being green meant no problems in the dimensions I measured, not no problems.
+
+Tests cover the dimensions you thought about. Observability covers the dimensions you didn't.

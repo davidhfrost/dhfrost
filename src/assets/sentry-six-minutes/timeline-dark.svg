@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 560" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <!-- Vertical timeline (dark variant). Four events. -->
+
+  <!-- vertical track -->
+  <line x1="100" y1="80" x2="100" y2="450" stroke="#64748b" stroke-width="2"/>
+
+  <!-- highlighted 6-minute span -->
+  <rect x="88" y="282.37" width="24" height="167.63" fill="#facc15" fill-opacity="0.30" rx="4"/>
+  <text x="60" y="370" text-anchor="end" font-size="13" font-weight="700" fill="#fcd34d">6 min</text>
+
+  <!-- 1. Sentry PR merged -->
+  <circle cx="100" cy="80" r="7" fill="#94a3b8"/>
+  <text x="140" y="76" font-size="14" font-weight="600" fill="#e2e8f0">Sentry PR merged</text>
+  <text x="140" y="95" font-size="12" fill="#cbd5e1" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">6:33 PM EDT</text>
+
+  <!-- 2. Deploy started -->
+  <circle cx="100" cy="208.18" r="6" fill="#94a3b8"/>
+  <text x="140" y="204" font-size="14" font-weight="600" fill="#e2e8f0">deploy started</text>
+  <text x="140" y="223" font-size="12" fill="#cbd5e1" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">6:38 PM EDT</text>
+
+  <!-- 3. Sentry live -->
+  <circle cx="100" cy="282.37" r="10" fill="#22c55e" stroke="#0f172a" stroke-width="2"/>
+  <text x="140" y="279" font-size="14" font-weight="700" fill="#86efac">Sentry live in prod</text>
+  <text x="140" y="298" font-size="12" fill="#cbd5e1" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">6:41 PM EDT</text>
+
+  <!-- 4. First error in prod -->
+  <circle cx="100" cy="450" r="10" fill="#ef4444" stroke="#0f172a" stroke-width="2"/>
+  <text x="140" y="446" font-size="14" font-weight="700" fill="#fca5a5">first error captured</text>
+  <text x="140" y="465" font-size="12" fill="#cbd5e1" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">6:47 PM EDT</text>
+
+  <!-- footer summary -->
+  <line x1="40" y1="510" x2="560" y2="510" stroke="#334155" stroke-width="1"/>
+  <text x="300" y="532" text-anchor="middle" font-size="13" fill="#e2e8f0">
+    Sentry live to first real signal:
+    <tspan font-weight="700" fill="#fcd34d">6 minutes</tspan>.
+  </text>
+</svg>
