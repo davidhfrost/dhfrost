@@ -6,17 +6,31 @@
  * Pass homepageSchema={true} only on the homepage. It emits two JSON-LD
  * blocks: Person (entity hub for David Frost) and WebSite (whose `name`
  * Google uses as the SERP "site name" instead of the bare host).
+ *
+ * Pass `article` on writing posts. It flips og:type to "article", emits
+ * article:published_time / article:modified_time, and a BlogPosting JSON-LD
+ * block whose author points back at the Person entity hub.
  */
 import { profile } from "../data/profile";
+
+export interface ArticleMeta {
+  /** Bare post title, without the " · David Frost" site suffix. */
+  title: string;
+  publishedAt: Date;
+  updatedAt?: Date;
+}
 
 interface Props {
   title: string;
   description: string;
   image?: string;
   homepageSchema?: boolean;
+  article?: ArticleMeta;
 }
 
-const { title, description, image = "/og.png", homepageSchema = false } = Astro.props;
+const { title, description, image = "/og.png", homepageSchema = false, article } = Astro.props;
+
+const ogType = article ? "article" : "website";
 
 // Astro.site is set in astro.config.mjs. If it's ever missing, fail loudly
 // rather than silently emitting request-host URLs as canonicals.
@@ -51,6 +65,23 @@ const websiteJsonLd = {
   url: `${siteOrigin}/`,
 };
 
+const articleJsonLd = article && {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: article.title,
+  description,
+  url: canonical,
+  mainEntityOfPage: canonical,
+  image: ogImage,
+  datePublished: article.publishedAt.toISOString(),
+  ...(article.updatedAt ? { dateModified: article.updatedAt.toISOString() } : {}),
+  author: {
+    "@type": "Person",
+    name: profile.name,
+    url: `${siteOrigin}/`,
+  },
+};
+
 // Escape `<`, `>`, `&` so a stray `</script>` or `<!--` in a future schema
 // value can't break out of the surrounding <script> tag. Also escape
 // U+2028 and U+2029, which are valid in JSON but terminate JS string
@@ -75,12 +106,19 @@ const jsonLd = (obj: unknown) =>
 <meta name="description" content={description} />
 <link rel="canonical" href={canonical} />
 
-<meta property="og:type" content="website" />
+<meta property="og:type" content={ogType} />
 <meta property="og:site_name" content="David Frost" />
 <meta property="og:url" content={canonical} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:image" content={ogImage} />
+{article && (
+  <meta property="article:published_time" content={article.publishedAt.toISOString()} />
+)}
+{article?.updatedAt && (
+  <meta property="article:modified_time" content={article.updatedAt.toISOString()} />
+)}
+{article && <meta property="article:author" content={profile.name} />}
 
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={title} />
@@ -101,4 +139,7 @@ const jsonLd = (obj: unknown) =>
 )}
 {homepageSchema && (
   <script type="application/ld+json" set:html={jsonLd(websiteJsonLd)} />
+)}
+{articleJsonLd && (
+  <script type="application/ld+json" set:html={jsonLd(articleJsonLd)} />
 )}
