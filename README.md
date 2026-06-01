@@ -20,6 +20,7 @@ Codified so they don't get diluted by accident:
 
 ## Writing
 
+- [Sentry earned its keep before I closed the terminal](https://dhfrost.com/writing/sentry-earned-its-keep/) — error aggregation that caught a real bug six minutes after deploy. The gap between a dashboard and a drawer, and why the wiring earned its keep.
 - [Streamlining Multi-Agent Development](https://dhfrost.com/writing/streamlining-multi-agent-development/) — isolation via content sharing, not copying. Worktrees, node_modules sprawl, a debugging story.
 - [CloudFront Continuous Deployment: sharp edges](https://dhfrost.com/writing/cloudfront-cd-sharp-edges/) — control-plane vs data-plane, orphaned CD policies, when DNS is the binding constraint.
 
@@ -82,19 +83,22 @@ scripts/
   generate-og.ts             # satori + resvg, runs as prebuild
   fonts/newsreader-latin-400.ttf    # build-time only, not shipped
 src/
-  components/Meta.astro      # <head> metadata: title, description, canonical, OG, twitter, Person JSON-LD
+  assets/                    # images + video for posts/projects, optimized at build
+  components/Meta.astro      # <head> metadata: title, description, canonical, OG/Twitter, Person + WebSite + BlogPosting JSON-LD
   layouts/
     Base.astro               # html shell, font preload, skip link, <main> landmark
     Post.astro               # per-post wrapper used by writing/[...id].astro
+    Project.astro            # per-project wrapper used by projects/[...id].astro
   pages/
     index.astro              # homepage
     404.astro                # not-found page
     writing/[...id].astro    # writing post pages
+    projects/[...id].astro   # project detail pages
     rss.xml.ts               # /rss.xml feed
   content.config.ts          # writing + projects collection schemas
   content/
     writing/                 # MDX posts
-    projects/                # latent; no route consumes this yet
+    projects/                # MDX project pages (e.g. retrofolio.mdx)
   styles/global.css          # @theme tokens + base rules, one @font-face
 ```
 
@@ -107,6 +111,7 @@ All content lives in the repo. There is no CMS.
 - **Bio + Now paragraph**: edit `src/pages/index.astro`. The `description` constant is the bio; the `<p>` inside `<h2>Now</h2>` is the Now paragraph.
 - **Footer links**: same file. GitHub, LinkedIn, RSS. No email by design.
 - **New post**: drop an MDX file in `src/content/writing/` with frontmatter matching the schema in `src/content.config.ts` (`title`, `description`, `publishedAt`, optional `updatedAt`, optional `draft`). The route at `src/pages/writing/[...id].astro` picks it up automatically.
+- **New project**: drop an MDX file in `src/content/projects/` with frontmatter matching the schema (`title`, `description`, optional `cardSummary`, optional `url`/`repo`, `year`, optional `featured`). It gets a detail page at `/projects/<id>`; if it has a `cardSummary`, it also appears in the homepage Projects list (newest first).
 
 ## Deploy
 
