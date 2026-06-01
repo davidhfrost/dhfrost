@@ -1,5 +1,5 @@
 ---
-import Meta from "../components/Meta.astro";
+import Meta, { type ArticleMeta } from "../components/Meta.astro";
 import { profile } from "../data/profile";
 import "../styles/global.css";
 
@@ -7,14 +7,15 @@ interface Props {
   title: string;
   description: string;
   homepageSchema?: boolean;
+  article?: ArticleMeta;
 }
 
-const { title, description, homepageSchema } = Astro.props;
+const { title, description, homepageSchema, article } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
   <head>
-    <Meta title={title} description={description} homepageSchema={homepageSchema} />
+    <Meta title={title} description={description} homepageSchema={homepageSchema} article={article} />
     <link
       rel="preload"
       href="/fonts/newsreader-latin-400.woff2"

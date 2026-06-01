@@ -7,7 +7,7 @@ interface Props {
 }
 
 const { post } = Astro.props;
-const { title, description, publishedAt } = post.data;
+const { title, description, publishedAt, updatedAt } = post.data;
 
 const formattedDate = publishedAt.toLocaleDateString("en-US", {
   timeZone: "UTC",
@@ -16,7 +16,11 @@ const formattedDate = publishedAt.toLocaleDateString("en-US", {
   day: "numeric",
 });
 ---
-<Base title={`${title} · David Frost`} description={description}>
+<Base
+  title={`${title} · David Frost`}
+  description={description}
+  article={{ title, publishedAt, updatedAt }}
+>
   <p><a href="/">← David Frost</a></p>
   <article>
     <h1>{title}</h1>
