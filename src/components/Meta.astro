@@ -72,6 +72,15 @@ const personJsonLd = {
   sameAs: [profile.social.github, profile.social.linkedin],
   description: profile.tagline,
   knowsAbout: profile.knowsAbout,
+  alumniOf: {
+    "@type": "CollegeOrUniversity",
+    name: profile.education.school,
+  },
+  hasCredential: {
+    "@type": "EducationalOccupationalCredential",
+    credentialCategory: "degree",
+    name: profile.education.degree,
+  },
 };
 
 const websiteJsonLd = {

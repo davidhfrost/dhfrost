@@ -24,7 +24,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, "..");
 
 const NAME = "David Frost";
-const BIO = "Software engineer working on cloud infrastructure at Capital One.";
+const BIO = "Software engineer at Capital One, building platforms, distributed systems, and AI.";
 const URL_LABEL = "dhfrost.com";
 
 const BG = "#0e0e10";

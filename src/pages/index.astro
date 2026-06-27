@@ -5,7 +5,7 @@ import Base from "../layouts/Base.astro";
 
 const title = `${profile.name} · ${profile.jobTitle} at ${profile.employer.name}`;
 const description =
-  "David Frost is a software engineer at Capital One. Writing on software engineering, with a focus on cloud infrastructure, infrastructure as code, and CI/CD. Side project: Retrofolio, a portfolio backtester.";
+  "David Frost is a software engineer at Capital One building platforms and distributed systems, increasingly working in AI: building AI products (agents, RAG, evals) and using AI to build. Side project: Retrofolio, a portfolio backtester.";
 const tagline = profile.tagline;
 
 const recentPosts = (
@@ -27,7 +27,7 @@ const cardProjects = (await getCollection("projects"))
 
     <h2>Now</h2>
     <p>
-      I'm building Retrofolio, a portfolio backtester born out of an interest in portfolio theory and historical asset allocation. At Capital One I work on the network infrastructure behind the web and mobile apps, mostly cloud engineering, infrastructure-as-code, and CI/CD.
+      I'm building Retrofolio, a portfolio backtester born out of an interest in portfolio theory and historical asset allocation. At Capital One I work on the platforms and distributed systems behind the web and mobile apps, and increasingly on AI: building AI-assisted developer tooling and using it day to day.
     </p>
 
     <h2>Writing</h2>
