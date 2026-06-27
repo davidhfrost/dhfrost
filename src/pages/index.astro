@@ -8,11 +8,9 @@ const description =
   "David Frost is a software engineer at Capital One building platforms and distributed systems, increasingly working in AI: building AI products (agents, RAG, evals) and using AI to build. Side project: Retrofolio, a portfolio backtester.";
 const tagline = profile.tagline;
 
-const recentPosts = (
+const posts = (
   await getCollection("writing", ({ data }) => (import.meta.env.PROD ? !data.draft : true))
-)
-  .sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf())
-  .slice(0, 3);
+).sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf());
 
 // Collection-backed projects (those with a homepage `cardSummary`), newest
 // first. Smart Lamp and dhfrost.com are not collection entries, so they
@@ -33,9 +31,9 @@ const cardProjects = (await getCollection("projects"))
 
     <h2>Writing</h2>
 
-    {recentPosts.length > 0 ? (
+    {posts.length > 0 ? (
       <>
-        {recentPosts.map((post) => (
+        {posts.map((post) => (
           <p>
             <a href={`/writing/${post.id}`}>{post.data.title}</a>
             {" · "}
