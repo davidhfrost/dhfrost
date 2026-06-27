@@ -6,16 +6,17 @@ import "../styles/global.css";
 interface Props {
   title: string;
   description: string;
+  image?: string;
   homepageSchema?: boolean;
   article?: ArticleMeta;
 }
 
-const { title, description, homepageSchema, article } = Astro.props;
+const { title, description, image, homepageSchema, article } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
   <head>
-    <Meta title={title} description={description} homepageSchema={homepageSchema} article={article} />
+    <Meta title={title} description={description} image={image} homepageSchema={homepageSchema} article={article} />
     <link
       rel="preload"
       href="/fonts/newsreader-latin-400.woff2"

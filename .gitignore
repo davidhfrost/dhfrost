@@ -29,6 +29,7 @@ yarn-debug.log*
 
 # generated at build time by scripts/generate-og.ts
 public/og.png
+public/og/
 
 # opentofu / terraform — see infra/README.md
 infra/.terraform/
