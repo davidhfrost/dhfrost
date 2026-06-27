@@ -19,6 +19,7 @@ const formattedDate = publishedAt.toLocaleDateString("en-US", {
 <Base
   title={`${title} · David Frost`}
   description={description}
+  image={`/og/writing/${post.id}.png`}
   article={{ title, publishedAt, updatedAt }}
 >
   <p><a href="/">← David Frost</a></p>

@@ -2,19 +2,25 @@
  * Build-time OG image generation.
  *
  * Runs as the `prebuild` npm script (see package.json) before every
- * `astro build`. Writes public/og.png, which is then copied into
- * dist/ by Astro's static asset pipeline and referenced from
- * Meta.astro as the og:image / twitter:image for the index page.
+ * `astro build`. Renders, with satori + resvg:
+ *   - public/og.png                  the default card (homepage, and any page
+ *                                    that doesn't set its own image)
+ *   - public/og/writing/<slug>.png   one card per published writing post
+ *   - public/og/projects/<slug>.png  one card per project
  *
- * No external image services, no runtime cost — the PNG is regenerated
- * whenever the build runs.
+ * Post.astro / Project.astro pass the matching `image` down through Base to
+ * Meta.astro. Everything here is regenerated on every build, so it's
+ * gitignored (see .gitignore).
  *
- * Fonts: satori needs TTF/OTF — it can't parse woff2 — so we ship a
- * second copy of Newsreader 400 as TTF under scripts/fonts/, used only
- * by this script. The user-facing font in public/fonts/ stays woff2.
+ * Frontmatter is read with a small regex (only `title` and `draft` are
+ * needed) to avoid pulling a YAML parser into this build-only script.
+ *
+ * Fonts: satori needs TTF/OTF — it can't parse woff2 — so we ship a second
+ * copy of Newsreader 400 as TTF under scripts/fonts/, used only by this
+ * script. The user-facing font in public/fonts/ stays woff2.
  */
 
-import { readFile, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Resvg } from "@resvg/resvg-js";
@@ -32,69 +38,127 @@ const FG = "#e6e6e6";
 const MUTED = "#8a8a92";
 const ACCENT = "#f5a524";
 
-async function main() {
-  const fontPath = resolve(repoRoot, "scripts/fonts/newsreader-latin-400.ttf");
-  const fontData = await readFile(fontPath);
+const fontData = await readFile(resolve(repoRoot, "scripts/fonts/newsreader-latin-400.ttf"));
 
-  const svg = await satori(
-    {
-      type: "div",
-      props: {
-        style: {
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          backgroundColor: BG,
-          color: FG,
-          fontFamily: "Newsreader",
-          padding: "80px 96px",
-        },
-        children: [
-          {
-            type: "div",
-            props: {
-              style: { fontSize: 84, letterSpacing: "-0.015em", marginBottom: 32 },
-              children: NAME,
-            },
-          },
-          {
-            type: "div",
-            props: {
-              style: { fontSize: 40, color: MUTED, lineHeight: 1.4, maxWidth: "90%" },
-              children: BIO,
-            },
-          },
-          {
-            type: "div",
-            props: {
-              style: { marginTop: "auto", fontSize: 28, color: ACCENT },
-              children: URL_LABEL,
-            },
-          },
-        ],
+function card({
+  heading,
+  headingSize,
+  sub,
+}: {
+  heading: string;
+  headingSize: number;
+  sub: string;
+}) {
+  return {
+    type: "div",
+    props: {
+      style: {
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        backgroundColor: BG,
+        color: FG,
+        fontFamily: "Newsreader",
+        padding: "80px 96px",
       },
-    },
-    {
-      width: 1200,
-      height: 630,
-      fonts: [
+      children: [
         {
-          name: "Newsreader",
-          data: fontData,
-          weight: 400,
-          style: "normal",
+          type: "div",
+          props: {
+            style: {
+              fontSize: headingSize,
+              letterSpacing: "-0.015em",
+              lineHeight: 1.1,
+              marginBottom: 32,
+            },
+            children: heading,
+          },
+        },
+        {
+          type: "div",
+          props: {
+            style: { fontSize: 40, color: MUTED, lineHeight: 1.4, maxWidth: "90%" },
+            children: sub,
+          },
+        },
+        {
+          type: "div",
+          props: {
+            style: { marginTop: "auto", fontSize: 28, color: ACCENT },
+            children: URL_LABEL,
+          },
         },
       ],
     },
+  };
+}
+
+async function renderPng(node: ReturnType<typeof card>) {
+  const svg = await satori(node, {
+    width: 1200,
+    height: 630,
+    fonts: [{ name: "Newsreader", data: fontData, weight: 400, style: "normal" }],
+  });
+  return new Resvg(svg, { fitTo: { mode: "width", value: 1200 } }).render().asPng();
+}
+
+function frontmatterBlock(raw: string): string {
+  const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  return match?.[1] ?? "";
+}
+
+function field(block: string, key: string): string {
+  const match = block.match(new RegExp(`^${key}:[ \\t]*(.+?)[ \\t]*$`, "m"));
+  const value = match?.[1]?.trim();
+  if (!value) return "";
+  const quoted = /^(["'])([\s\S]*)\1$/.exec(value);
+  return quoted?.[2] ?? value;
+}
+
+async function entries(dir: string) {
+  const files = (await readdir(dir)).filter((file) => /\.mdx?$/.test(file));
+  return Promise.all(
+    files.map(async (file) => {
+      const block = frontmatterBlock(await readFile(resolve(dir, file), "utf8"));
+      return {
+        slug: file.replace(/\.mdx?$/, ""),
+        title: field(block, "title"),
+        draft: field(block, "draft") === "true",
+      };
+    }),
   );
+}
 
-  const png = new Resvg(svg, { fitTo: { mode: "width", value: 1200 } }).render().asPng();
+async function writeCard(relPath: string, node: ReturnType<typeof card>) {
+  const out = resolve(repoRoot, relPath);
+  await mkdir(dirname(out), { recursive: true });
+  await writeFile(out, await renderPng(node));
+}
 
-  const outPath = resolve(repoRoot, "public/og.png");
-  await writeFile(outPath, png);
-  console.log(`[og] wrote ${outPath} (${png.byteLength} bytes)`);
+async function main() {
+  await writeCard("public/og.png", card({ heading: NAME, headingSize: 84, sub: BIO }));
+
+  const writing = (await entries(resolve(repoRoot, "src/content/writing"))).filter(
+    (entry) => !entry.draft,
+  );
+  for (const entry of writing) {
+    await writeCard(
+      `public/og/writing/${entry.slug}.png`,
+      card({ heading: entry.title, headingSize: 60, sub: NAME }),
+    );
+  }
+
+  const projects = await entries(resolve(repoRoot, "src/content/projects"));
+  for (const entry of projects) {
+    await writeCard(
+      `public/og/projects/${entry.slug}.png`,
+      card({ heading: entry.title, headingSize: 60, sub: NAME }),
+    );
+  }
+
+  console.log(`[og] wrote ${1 + writing.length + projects.length} card(s)`);
 }
 
 main().catch((err) => {
