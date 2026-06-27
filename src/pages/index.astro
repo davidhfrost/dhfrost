@@ -22,7 +22,7 @@ const cardProjects = (await getCollection("projects"))
 <Base title={title} description={description} homepageSchema={true}>
   <h1>David Frost</h1>
     <p>{tagline}</p>
-    <p><a href="/about">About →</a></p>
+    <p><a href="/about/">About →</a></p>
 
     <h2>Now</h2>
     <p>
@@ -35,7 +35,7 @@ const cardProjects = (await getCollection("projects"))
       <>
         {posts.map((post) => (
           <p>
-            <a href={`/writing/${post.id}`}>{post.data.title}</a>
+            <a href={`/writing/${post.id}/`}>{post.data.title}</a>
             {" · "}
             <time datetime={post.data.publishedAt.toISOString()}>
               {post.data.publishedAt.toLocaleDateString("en-US", {
@@ -56,7 +56,7 @@ const cardProjects = (await getCollection("projects"))
 
     {cardProjects.map((project) => (
       <p>
-        <a href={`/projects/${project.id}`}>{project.data.title}</a>: {project.data.cardSummary}
+        <a href={`/projects/${project.id}/`}>{project.data.title}</a>: {project.data.cardSummary}
       </p>
     ))}
 
