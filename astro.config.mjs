@@ -6,7 +6,7 @@ import { defineConfig } from "astro/config";
 export default defineConfig({
   site: "https://dhfrost.com",
   integrations: [mdx(), sitemap()],
-  trailingSlash: "never",
+  trailingSlash: "always",
   build: {
     inlineStylesheets: "always",
   },
