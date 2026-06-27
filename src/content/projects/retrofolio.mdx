@@ -1,6 +1,6 @@
 ---
 title: "Retrofolio"
-description: "A portfolio backtester I built to explore portfolio theory and exercise full-stack production engineering."
+description: "A portfolio backtester I built to explore portfolio theory, exercise full-stack production engineering, and build a real AI layer (explanation, agent, semantic search) on top."
 cardSummary: "a portfolio backtester with a Next.js frontend and a FastAPI backend. Long-running backtests run on a Celery and Redis task pipeline. Postgres for persistence, the whole seven-service stack on a single Compute Engine VM behind Cloudflare, with Terraform and GitHub Actions driving infra and deploys."
 url: "https://retrofolio.dhfrost.com"
 year: 2026
@@ -40,7 +40,7 @@ A backtest request enters the Next.js frontend, hits nginx on the VM, and routes
   <img src={architecture.src} alt="Retrofolio request flow: browser to Cloudflare to nginx, splitting between Next.js and FastAPI; FastAPI enqueues Celery tasks via Redis to a worker that writes to Postgres" />
 </figure>
 
-Reads and writes split cleanly. The backtest write endpoint (`POST /backtest`) always goes through the queue. Every read path (history list, run detail, CSV export, job status) goes straight to Postgres or Redis without touching a worker. Persistent state is still small: six tables (`users`, `backtest_runs`, `revoked_tokens`, plus `agent_sessions`, `agent_messages`, and `backtest_explanations` for the AI layer below), with the heavy backtest output stored as JSON columns on the run row. Redis is the Celery broker, the result backend, and the market-data cache, but nothing in Redis is the system of record.
+Reads and writes split cleanly. The backtest write endpoint (`POST /backtest`) always goes through the queue. Every read path (history list, run detail, CSV export, job status) goes straight to Postgres or Redis without touching a worker. Persistent state is still small: seven tables (`users`, `backtest_runs`, `revoked_tokens`, plus `agent_sessions`, `agent_messages`, `backtest_explanations`, and `backtest_run_embeddings` for the AI layer below), with the heavy backtest output stored as JSON columns on the run row. Redis is the Celery broker, the result backend, and the market-data cache, but nothing in Redis is the system of record.
 
 ## Decisions
 
@@ -50,15 +50,17 @@ Reads and writes split cleanly. The backtest write endpoint (`POST /backtest`) a
 
 **Deploy pipeline with automatic rollback.** Two GitHub Actions workflows chained by `workflow_run`. The first builds and pushes the three images to Docker Hub in parallel with layer caching. The second runs the deploy itself, and most of the design effort went into the failure paths. A `flock` blocks concurrent deploys, the workflow snapshots Postgres with `pg_dump` before any state change, Alembic migrations run in a one-shot container instead of the long-lived backend, and a `/health` poll inside the backend container gates the cutover for up to 120 seconds. On health-check failure the workflow restores the snapshot and restarts the stack automatically. CI runs the exact same matrix that `scripts/preflight.sh` runs locally, so most failures surface in 30 seconds at my desk instead of 4 minutes in CI.
 
-## An AI layer on top of the backtester
+## The AI layer
 
-Two AI features reuse the backtest pipeline's infrastructure rather than standing up a parallel stack.
+Three AI features reuse the backtest pipeline's infrastructure rather than standing up a parallel stack.
 
 The first is **explanation**. After a run finishes you can ask for a plain-English read of what the numbers mean: why a 0.90 Sharpe with a 37% drawdown is a different animal than the same Sharpe with a 12% one. The text streams token-by-token over the same SSE plumbing the backtests use, and the finished explanation is cached in Postgres (`backtest_explanations`) so re-opening a run doesn't regenerate it.
 
 The second is a **conversational agent**: a chat drawer for follow-up questions about portfolio theory and the runs you've done. Each conversation is a persisted session (`agent_sessions` + `agent_messages`), a single turn streams as resumable SSE (drop the connection and a `Last-Event-ID` header replays from where the stream left off), and only one turn can be in flight per session at a time. Long threads get a lazily-maintained context summary so the prompt doesn't grow without bound, and idle sessions are pruned on the same Celery beat schedule that sweeps everything else.
 
-Both features sit behind feature flags, so the AI surface ships and rolls back on its own cadence without touching the backtester's deploy path.
+The third is **semantic search** over your backtest history. Each finished run becomes a short document (portfolio, window, the four headline metrics, and its explanation if it has one), embedded with Voyage and stored as a `vector(1024)` in Postgres via pgvector. A free-text query like "low-volatility dividend portfolios" is embedded the same way and ranked by cosine similarity over an HNSW approximate-nearest-neighbor index, and a "find similar runs" button reuses a run's stored vector with no API call at all. Embeddings backfill lazily on the same Celery workers under a daily cost cap, so the feature costs nothing until someone actually searches.
+
+All three sit behind feature flags, so the AI surface ships and rolls back on its own cadence without touching the backtester's deploy path.
 
 ## What I'd do next
 
