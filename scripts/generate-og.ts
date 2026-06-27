@@ -106,15 +106,15 @@ async function renderPng(node: ReturnType<typeof card>) {
 
 function frontmatterBlock(raw: string): string {
   const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-  return match ? match[1] : "";
+  return match?.[1] ?? "";
 }
 
 function field(block: string, key: string): string {
   const match = block.match(new RegExp(`^${key}:[ \\t]*(.+?)[ \\t]*$`, "m"));
-  if (!match) return "";
-  const value = match[1].trim();
+  const value = match?.[1]?.trim();
+  if (!value) return "";
   const quoted = /^(["'])([\s\S]*)\1$/.exec(value);
-  return quoted ? quoted[2] : value;
+  return quoted?.[2] ?? value;
 }
 
 async function entries(dir: string) {
