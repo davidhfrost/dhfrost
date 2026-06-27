@@ -1,5 +1,5 @@
 ---
-title: "Reading the Transcripts: What Actually Drives the Cache Bill"
+title: "What Actually Drives Claude Code's Cache Bill"
 description: "A status-line cache timer blamed the bill on 5-minute TTL eviction. The transcripts disagreed: Claude Code runs the 1-hour cache, and the real driver was prefix-key rotation from parallel tool calls, not idle expiry."
 publishedAt: 2026-06-27
 draft: false
