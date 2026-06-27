@@ -6,9 +6,25 @@ export const profile = {
     name: "Capital One",
     url: "https://www.capitalone.com",
   },
-  focus: "cloud infrastructure",
-  tagline: "Software engineer working on cloud infrastructure at Capital One.",
-  knowsAbout: ["Cloud infrastructure", "Infrastructure as code", "CI/CD", "Distributed systems"],
+  education: {
+    school: "Case Western Reserve University",
+    degree: "M.S. in Computer Science (Artificial Intelligence)",
+  },
+  focus: "AI and platform engineering",
+  tagline:
+    "Software engineer building platforms and distributed systems, increasingly focused on AI: both what I build and how I build.",
+  knowsAbout: [
+    "AI engineering",
+    "AI agents",
+    "Retrieval-augmented generation",
+    "Model Context Protocol",
+    "Semantic search",
+    "LLM evaluation",
+    "AI-assisted development",
+    "Platform engineering",
+    "Distributed systems",
+    "Cloud infrastructure",
+  ],
   social: {
     github: "https://github.com/davidhfrost",
     linkedin: "https://www.linkedin.com/in/davidhfrost",
