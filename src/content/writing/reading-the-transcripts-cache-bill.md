@@ -5,13 +5,13 @@ publishedAt: 2026-06-27
 draft: false
 ---
 
-I added a prompt-cache timer to my Claude Code status line and watched the cache create / cache read ratio swing toward write every time a long subagent dispatched. The obvious story: the cache was evicting on its 5-minute idle timer during the wait, and the next parent message was paying full rate to rebuild the context. The numbers in `npx ccusage` looked consistent with that story: roughly three-quarters of a recent six-hour session was cache writes.
+I added a prompt-cache timer to my Claude Code status line and watched the cache create / cache read ratio swing toward write every time a long subagent dispatched. The obvious story: the cache was evicting on its 5-minute idle timer during the wait, and the next parent message was paying full rate to rebuild the context.
 
 When I went back to the transcripts to verify the math, the mechanism story didn't survive. Claude Code wasn't on the 5-minute cache tier; it was on the 1-hour one, with a different rate. And the biggest "eviction" of the session followed a 99-second gap, not anything close to an hour.
 
 ## How the cache works
 
-Anthropic's prompt cache has two TTL options. The standard ephemeral cache holds the prefix for about 5 minutes at a 1.25x base-input write rate. A beta 1-hour variant costs 2.0x base input to write but survives much longer pauses. Both pay 0.1x base input on reads.
+Anthropic's prompt cache has two TTL options. The standard ephemeral cache holds the prefix for about 5 minutes at a 1.25x base-input write rate. A 1-hour variant costs 2.0x base input to write but survives much longer pauses. Both pay 0.1x base input on reads.
 
 Claude Code uses the 1-hour variant by default. You can see this in any session transcript at `~/.claude/projects/<encoded-path>/<session-uuid>.jsonl`: assistant messages report `cache_creation.ephemeral_1h_input_tokens` populated and `ephemeral_5m_input_tokens` at zero. The write/read ratio for the 1-hour tier is 20x, not the 12.5x of the 5-minute tier. A 7-minute subagent dispatch doesn't expire the cache; you'd need a full hour of idle.
 
@@ -19,7 +19,7 @@ The cache prefix key is a hash over tools, system prompt, and message history, i
 
 ## What I expected vs what the transcripts showed
 
-The mental model behind the status-line timer: long subagent wait, cache idles past TTL, expires, next parent message rebuilds at full rate. I eyeballed about eight subagent runs over five minutes, a mid-session parent context around 150,000 tokens, and the 5-minute tier's 12.5x miss multiplier, which comes out to roughly 1.2 million tokens of cache-miss spend. That number matched what `ccusage` reported.
+The mental model behind the status-line timer: long subagent wait, cache idles past TTL, expires, next parent message rebuilds at full rate. I eyeballed about eight subagent runs over five minutes, a mid-session parent context around 150,000 tokens, and the 5-minute tier's 12.5x miss multiplier, which comes out to roughly 1.2 million tokens of cache-miss spend.
 
 The transcripts told a different story. Across the session there were only two large cache_creation events: 476,442 tokens written at 22:00Z and 70,034 written at 19:13Z. The 476k spike followed a parent gap of 99 seconds. Nowhere near the 1-hour TTL.
 
