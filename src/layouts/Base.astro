@@ -32,6 +32,8 @@ const { title, description, image, homepageSchema, article } = Astro.props;
         <slot />
       </main>
       <footer>
+        <a href="/about">About</a>
+        {" · "}
         <a href={profile.social.github}>GitHub</a>
         {" · "}
         <a href={profile.social.linkedin}>LinkedIn</a>

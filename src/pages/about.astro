@@ -1,0 +1,42 @@
+---
+import { profile } from "../data/profile";
+import Base from "../layouts/Base.astro";
+
+const title = "About · David Frost";
+const description =
+  "David Frost is a software engineer at Capital One building platforms and distributed systems, increasingly focused on AI. M.S. in Computer Science (AI) from Case Western Reserve University.";
+---
+<Base title={title} description={description}>
+  <p><a href="/">← David Frost</a></p>
+  <article>
+    <h1>About</h1>
+    <div class="post-body">
+      <p>
+        I'm a software engineer who likes building the systems other engineers
+        build on: developer platforms, the distributed systems under them, and
+        the AI layer on top.
+      </p>
+      <p>
+        At Capital One I started on deployment and release infrastructure and
+        moved into the broader platforms and distributed systems behind its web
+        and mobile apps. More and more of that work runs through AI now, both
+        building AI-assisted developer tooling and using it day to day.
+      </p>
+      <p>
+        <a href="/projects/retrofolio">Retrofolio</a> is where the same interests
+        play out on my own time: a portfolio backtester I designed and run end to
+        end, as much an excuse to push on production engineering (async pipelines,
+        deploy automation, infrastructure-as-code) as on a real AI layer
+        (explanation, a conversational agent, and semantic search). I write up the
+        engineering as I go, mostly on Claude Code workflows, distributed systems,
+        and the infrastructure around AI.
+      </p>
+      <p>
+        I studied computer science at Case Western Reserve University, finishing
+        a B.S. and an M.S. with a specialization in artificial intelligence. Reach
+        me on <a href={profile.social.github}>GitHub</a> or
+        <a href={profile.social.linkedin}>LinkedIn</a>.
+      </p>
+    </div>
+  </article>
+</Base>
