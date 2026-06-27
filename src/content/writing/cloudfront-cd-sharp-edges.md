@@ -56,11 +56,19 @@ The peak-traffic override is the first. AWS documents that during high CloudFron
 
 HTTP/3 is the other. CD doesn't work with distributions that have HTTP/3 enabled. If you want CD, you stay on HTTP/2.
 
+### Session stickiness and blast radius
+
+A weight-based CD policy can route per request or per session, and the default per-request behavior is a trap once you account for how a real page loads. A single page view is rarely a single request. With chunked, content-hashed CSS and JS, one load fans out into dozens of asset requests, and per-request weighting rolls the dice independently on each one. The probability that a given user touches the staging distribution at least once climbs with the request count and quickly approaches everyone. A bad staging build then degrades nearly your whole audience, which is the exact outcome a canary is supposed to prevent.
+
+Enabling session stickiness pins a viewer to one distribution for the duration of their session, so the blast radius collapses back to the weight you actually set. Send 5% of traffic to staging and roughly 5% of users see it consistently while the rest never touch it, instead of a broken build leaking into nearly every page load. Stickiness is what makes the percentage on the policy mean what you think it means.
+
 ### Lifecycle and migration pain
 
 This is where we've spent the most operational time. Most of it stays invisible until you try something irreversible.
 
 CD policies can't be deleted while attached to a staging distribution. That sounds obvious until you realize the attachment outlives the CloudFormation stack that created it. We've seen cases where a CD policy provisioned in a staging distribution's CDK stack survived `aws cloudformation delete-stack`, orphaned and still referencing a torn-down distribution, blocking follow-on operations. The fix involves detaching the policy via `update-distribution` (with the requisite etag), then deleting it via `delete-continuous-deployment-policy`. Our developer IAM roles didn't have those permissions, which turned cleanup into a ticket before it could become a script. These tickets tend to take months.
+
+That same detach-then-reattach dance is the only path for routine security work, too: CloudFront rejects certificate rotations and minimum-TLS bumps outright while a CD policy is attached to the primary, so you fetch the config, strip the policy, push it back, make the change, fetch the new etag, and reattach. There's no first-class command for any of it, so I [filed an aws-cli feature request](https://github.com/aws/aws-cli/issues/10446) to add `detach-continuous-deployment-policy` and `attach-continuous-deployment-policy` convenience commands for exactly this, modeled on existing customizations like `update-default-root-object`. Until something like it lands, you hand-roll the get-config/update sequence and own the etag bookkeeping yourself.
 
 The other lifecycle pain is DNS. If you need to migrate to a new distribution, say switching IaC tools or moving between AWS accounts, you're moving CNAMEs. DNS pace becomes the binding constraint. Long TTLs slow the cutover. Change-management gates on DNS records slow it further. Rollback retraces the same path: another DNS change, another window, another wait for caches to clear. In environments where DNS updates aren't fast and self-service, what looks like a simple migration turns into a multi-day exercise. Worth knowing before you put CD on a critical path.
 
