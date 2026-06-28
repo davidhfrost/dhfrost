@@ -10,7 +10,6 @@ export const profile = {
     school: "Case Western Reserve University",
     degree: "M.S. in Computer Science (Artificial Intelligence)",
   },
-  focus: "AI and platform engineering",
   tagline:
     "Software engineer building platforms and distributed systems, increasingly focused on AI: both what I build and how I build.",
   knowsAbout: [
