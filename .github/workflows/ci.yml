@@ -6,6 +6,12 @@ on:
   push:
     branches: [main]
 
+# Least privilege: the check job only reads the repo (checkout, install, lint,
+# typecheck, build, size budget). Without this, GITHUB_TOKEN inherits the repo
+# default, which can be read-write.
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
