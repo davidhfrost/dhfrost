@@ -32,3 +32,16 @@ updates:
     # Same pattern as the npm block: group boring minor/patch bumps so the
     # inbox stays quiet, let majors (actions/checkout@v5 etc.) surface
     # individually so they can be reviewed on their own.
+
+  # infra/ is OpenTofu (cloudflare provider, pinned in versions.tf with a
+  # lock file). Without this, the provider that controls DNS/TLS/Pages never
+  # gets automated update PRs. Updates are infrequent, so no grouping -- surface
+  # each provider bump on its own for review.
+  - package-ecosystem: terraform
+    directory: /infra
+    schedule:
+      interval: weekly
+      day: monday
+    labels:
+      - deps
+      - infra
