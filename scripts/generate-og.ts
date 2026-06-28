@@ -3,17 +3,23 @@
  *
  * Runs as the `prebuild` npm script (see package.json) before every
  * `astro build`. Renders, with satori + resvg:
- *   - public/og.png                  the default card (homepage, and any page
- *                                    that doesn't set its own image)
- *   - public/og/writing/<slug>.png   one card per published writing post
- *   - public/og/projects/<slug>.png  one card per project
+ *   - public/og.png                the default card (homepage, and any page
+ *                                  that doesn't set its own image)
+ *   - public/og/writing/<id>.png   one card per published writing post
+ *   - public/og/projects/<id>.png  one card per project
  *
  * Post.astro / Project.astro pass the matching `image` down through Base to
- * Meta.astro. Everything here is regenerated on every build, so it's
- * gitignored (see .gitignore).
+ * Meta.astro as `/og/<collection>/${entry.id}.png`, so the on-disk card path
+ * MUST equal the content-layer entry id. The glob loader derives that id by
+ * github-slugging each path segment of the file's path (relative to the
+ * collection base, minus extension) and joining with "/" — or, if frontmatter
+ * sets an explicit `slug`, that value. `entryId()` below mirrors that exactly,
+ * and the directory walk is recursive, so nested or non-slug-safe filenames
+ * still get a card at the right path. Everything here is regenerated on every
+ * build, so it's gitignored (see .gitignore).
  *
- * Frontmatter is read with a small regex (only `title` and `draft` are
- * needed) to avoid pulling a YAML parser into this build-only script.
+ * Frontmatter is read with a small regex (only `title`, `draft`, and `slug`
+ * are needed) to avoid pulling a YAML parser into this build-only script.
  *
  * Fonts: satori needs TTF/OTF — it can't parse woff2 — so we ship a second
  * copy of Newsreader 400 as TTF under scripts/fonts/, used only by this
@@ -24,6 +30,7 @@ import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Resvg } from "@resvg/resvg-js";
+import { slug as githubSlug } from "github-slugger";
 import satori from "satori";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -117,13 +124,30 @@ function field(block: string, key: string): string {
   return quoted?.[2] ?? value;
 }
 
+// Mirror Astro's glob-loader id derivation (generateIdDefault ->
+// getContentEntryIdAndSlug): github-slug each path segment of the
+// extension-stripped, collection-relative path, join with "/", and drop a
+// trailing "/index". `relPath` uses OS separators from readdir; split on both.
+function entryId(relPath: string): string {
+  return relPath
+    .replace(/\.mdx?$/, "")
+    .split(/[\\/]/)
+    .map((segment) => githubSlug(segment))
+    .join("/")
+    .replace(/\/index$/, "");
+}
+
 async function entries(dir: string) {
-  const files = (await readdir(dir)).filter((file) => /\.mdx?$/.test(file));
+  const all = await readdir(dir, { recursive: true });
+  const files = all.filter((file) => /\.mdx?$/.test(file));
   return Promise.all(
-    files.map(async (file) => {
-      const block = frontmatterBlock(await readFile(resolve(dir, file), "utf8"));
+    files.map(async (relPath) => {
+      const block = frontmatterBlock(await readFile(resolve(dir, relPath), "utf8"));
+      // An explicit frontmatter `slug` overrides the derived id, matching the
+      // glob loader's `if (data.slug) return data.slug`.
+      const explicitSlug = field(block, "slug");
       return {
-        slug: file.replace(/\.mdx?$/, ""),
+        id: explicitSlug || entryId(relPath),
         title: field(block, "title"),
         draft: field(block, "draft") === "true",
       };
@@ -145,7 +169,7 @@ async function main() {
   );
   for (const entry of writing) {
     await writeCard(
-      `public/og/writing/${entry.slug}.png`,
+      `public/og/writing/${entry.id}.png`,
       card({ heading: entry.title, headingSize: 60, sub: NAME }),
     );
   }
@@ -153,7 +177,7 @@ async function main() {
   const projects = await entries(resolve(repoRoot, "src/content/projects"));
   for (const entry of projects) {
     await writeCard(
-      `public/og/projects/${entry.slug}.png`,
+      `public/og/projects/${entry.id}.png`,
       card({ heading: entry.title, headingSize: 60, sub: NAME }),
     );
   }
