@@ -66,8 +66,21 @@ resource "cloudflare_dns_record" "null_mx" {
 # CAA records constrain which CAs may issue certificates for this domain.
 # Cloudflare's Universal SSL currently provisions through Let's Encrypt and
 # Google Trust Services, so we pin issuance to those two. The issuewild ";"
-# record blocks wildcard issuance entirely; the site only needs apex + www
-# certs, both non-wildcard.
+# record signals "no wildcard by default"; the apex + www certs are both
+# non-wildcard.
+#
+# This file intentionally manages only an explicit subset of the zone's CAA
+# records. Cloudflare automatically injects additional CAA entries for the CAs
+# behind Universal SSL (e.g. comodoca.com, digicert.com, ssl.com) whenever any
+# CAA record exists on the zone, including named "issuewild" entries that
+# authorize the *.dhfrost.com wildcard. Those injected records are managed by
+# Cloudflare, not by this configuration, and will not appear in this state.
+#
+# Consequence: the live zone is broader than this file. The named "issuewild"
+# entries are what let the *.dhfrost.com wildcard renew (it serves subdomains
+# such as retrofolio.dhfrost.com). Before removing or narrowing any record
+# here, check the live set (`dig CAA dhfrost.com`) and confirm a plan does not
+# destroy records the wildcard depends on.
 resource "cloudflare_dns_record" "caa_issue_letsencrypt" {
   zone_id = var.zone_id
   name    = var.apex_domain
