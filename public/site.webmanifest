@@ -1,4 +1,6 @@
 {
+  "id": "/",
+  "start_url": "/",
   "name": "David Frost",
   "short_name": "dhfrost",
   "theme_color": "#0e0e10",

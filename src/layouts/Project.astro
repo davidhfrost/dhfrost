@@ -9,7 +9,7 @@ interface Props {
 const { project } = Astro.props;
 const { title, description, url, repo, year } = project.data;
 ---
-<Base title={`${title} · David Frost`} description={description} image={`/og/projects/${project.id}.png`}>
+<Base title={`${title} · David Frost`} description={description} image={`/og/projects/${project.id}.png`} imageAlt={`${title} — David Frost`}>
   <p><a href="/">← David Frost</a></p>
   <article>
     <h1>{title}</h1>
