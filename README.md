@@ -138,4 +138,4 @@ Split intentionally so code and prose travel under different terms:
 
 ## Conventions
 
-See [`CLAUDE.md`](CLAUDE.md) for commit, branching, and worktree conventions.
+See [`AGENTS.md`](AGENTS.md) for commit, branching, and worktree conventions.
