@@ -5,13 +5,13 @@ publishedAt: 2026-04-25
 draft: false
 ---
 
-Continuous Deployment is one of the more interesting and under-discussed pieces of CloudFront. I've been working on CD for a large production web application for a while, and the parts that matter most in practice are different from where the docs spend their time. The engineering tradeoffs underneath are genuinely interesting once you sit with them. Most of what feels like rough edges turns out to be a consequence of doing canary-style traffic shifting on top of an eventually-consistent, globally-distributed control plane. Once that lands, the rest of the operational picture follows.
+I've been working on CloudFront Continuous Deployment for a large production web application for a while, and the parts that matter most in practice are different from where the docs spend their time. Most of what looks like a quirk is a consequence of doing canary-style traffic shifting on top of an eventually-consistent, globally-distributed control plane. Once you accept that, the rest of the behavior is predictable.
 
 ## The architectural tension
 
-CloudFront is two systems welded together. The data plane serves traffic in milliseconds across a global POP fleet. The control plane configures that fleet, and it's eventually consistent: when you change a distribution's config, the new version propagates across the POP fleet over the next few minutes. POPs flip independently as they get the update. There's no atomic "everyone has the new config now" moment.
+CloudFront has two parts that operate separately. The data plane serves traffic in milliseconds across a global POP fleet. The control plane configures that fleet, and it's eventually consistent: when you change a distribution's config, the new version propagates across the POP fleet over the next few minutes. POPs flip independently as they get the update. There's no atomic "everyone has the new config now" moment.
 
-CD is canary-style traffic shifting layered on top of that reality. Two distributions with different configs, a policy that splits real traffic between them by header or by weight, and a promote action that swaps the primary's config for the staging's once you're satisfied. Most of CD's behavior, including the parts that feel weird, comes back to the propagation reality underneath.
+CD is canary-style traffic shifting layered on top of that reality. Two distributions with different configs, a policy that splits real traffic between them by header or by weight, and a promote action that swaps the primary's config for the staging's once you're satisfied. Most of CD's behavior, including the parts that seem arbitrary, follows from that propagation delay.
 
 ## Sharp edges in practice
 
@@ -36,7 +36,7 @@ def is_deployed(distribution_id):
 
 Wrap it in whatever retry, timeout, and observability your platform expects. In our deployment platform a Step Functions Wait state handles the orchestration, since you don't want a Lambda burning execution time idling on propagation.
 
-Optimistic concurrency and eventually-consistent rollout are reasonable primitives for a globally-distributed control plane. The friction comes with the territory.
+Optimistic concurrency and eventually-consistent rollout are reasonable primitives for a globally-distributed control plane. The friction is a direct consequence of them.
 
 ### Pipeline integration
 
@@ -52,13 +52,13 @@ IaC is the source of truth for desired state. Promote applies it to primary. A s
 
 Two behaviors to know about before committing to CD.
 
-The peak-traffic override is the first. AWS documents that during high CloudFront-wide load, all requests may go to the primary distribution regardless of CD policy. We asked AWS, and they told us it's per-POP: a POP flips when its own load is high, while others keep honoring the policy. Peak refers to CloudFront's own load, not yours. We haven't observed this in production, but we designed for it: any promote action confirms staging is actually receiving traffic before proceeding. Promote is one-way, so paying that cost on every promote is cheap insurance.
+The peak-traffic override is the first. AWS documents that during high CloudFront-wide load, all requests may go to the primary distribution regardless of CD policy. We asked AWS, and they told us it's per-POP: a POP flips when its own load is high, while others keep honoring the policy. Peak refers to CloudFront's own load, not yours. We haven't observed this in production, but we designed for it: any promote action confirms staging is actually receiving traffic before proceeding. Promote is one-way, so one extra check per promote is a small price for never promoting a config nobody has exercised.
 
 HTTP/3 is the other. CD doesn't work with distributions that have HTTP/3 enabled. If you want CD, you stay on HTTP/2.
 
 ### Session stickiness and blast radius
 
-A weight-based CD policy can route per request or per session, and the default per-request behavior is a trap once you account for how a real page loads. A single page view is rarely a single request. With chunked, content-hashed CSS and JS, one load fans out into dozens of asset requests, and per-request weighting rolls the dice independently on each one. The probability that a given user touches the staging distribution at least once climbs with the request count and quickly approaches everyone. A bad staging build then degrades nearly your whole audience, which is the exact outcome a canary is supposed to prevent.
+A weight-based CD policy can route per request or per session, and the default per-request behavior is misleading once you account for how a real page loads. A single page view is rarely a single request. With chunked, content-hashed CSS and JS, one load fans out into dozens of asset requests, and per-request weighting samples each request independently. The probability that a given user touches the staging distribution at least once climbs with the request count and quickly approaches everyone. A bad staging build then degrades nearly your whole audience, which is the exact outcome a canary is supposed to prevent.
 
 Enabling session stickiness pins a viewer to one distribution for the duration of their session, so the blast radius collapses back to the weight you actually set. Send 5% of traffic to staging and roughly 5% of users see it consistently while the rest never touch it, instead of a broken build leaking into nearly every page load. Stickiness is what makes the percentage on the policy mean what you think it means.
 
@@ -68,7 +68,7 @@ This is where we've spent the most operational time. Most of it stays invisible 
 
 CD policies can't be deleted while attached to a staging distribution. That sounds obvious until you realize the attachment outlives the CloudFormation stack that created it. We've seen cases where a CD policy provisioned in a staging distribution's CDK stack survived `aws cloudformation delete-stack`, orphaned and still referencing a torn-down distribution, blocking follow-on operations. The fix involves detaching the policy via `update-distribution` (with the requisite etag), then deleting it via `delete-continuous-deployment-policy`. Our developer IAM roles didn't have those permissions, which turned cleanup into a ticket before it could become a script. These tickets tend to take months.
 
-That same detach-then-reattach dance is the only path for routine security work, too: CloudFront rejects certificate rotations and minimum-TLS bumps outright while a CD policy is attached to the primary, so you fetch the config, strip the policy, push it back, make the change, fetch the new etag, and reattach. There's no first-class command for any of it, so I [filed an aws-cli feature request](https://github.com/aws/aws-cli/issues/10446) to add `detach-continuous-deployment-policy` and `attach-continuous-deployment-policy` convenience commands for exactly this, modeled on existing customizations like `update-default-root-object`. Until something like it lands, you hand-roll the get-config/update sequence and own the etag bookkeeping yourself.
+That same detach-then-reattach sequence is the only path for routine security work, too: CloudFront rejects certificate rotations and minimum-TLS bumps outright while a CD policy is attached to the primary, so you fetch the config, strip the policy, push it back, make the change, fetch the new etag, and reattach. There's no first-class command for any of it, so I [filed an aws-cli feature request](https://github.com/aws/aws-cli/issues/10446) to add `detach-continuous-deployment-policy` and `attach-continuous-deployment-policy` convenience commands for exactly this, modeled on existing customizations like `update-default-root-object`. Until something like it lands, you hand-roll the get-config/update sequence and own the etag bookkeeping yourself.
 
 The other lifecycle pain is DNS. If you need to migrate to a new distribution, say switching IaC tools or moving between AWS accounts, you're moving CNAMEs. DNS pace becomes the binding constraint. Long TTLs slow the cutover. Change-management gates on DNS records slow it further. Rollback retraces the same path: another DNS change, another window, another wait for caches to clear. In environments where DNS updates aren't fast and self-service, what looks like a simple migration turns into a multi-day exercise. Worth knowing before you put CD on a critical path.
 
@@ -84,13 +84,13 @@ Treating CD as your whole progressive delivery story is where teams get into tro
 
 ## When CD is the right call
 
-CD works well for high-frequency, low-stakes changes to static content. Bootstrap doc updates flow through the canary first: a new index.html sees real traffic on staging, and we promote when it looks healthy. The same shape works for asset rotations and cache behavior tweaks, where a five-minute ramp is cheap insurance against a regression. The CDN isn't where you'd run your most novel code paths, and CD fits that. It catches the obvious failures (a misconfigured header, an inverted cache key, a broken root document) before they reach your full audience.
+CD works well for high-frequency, low-stakes changes to static content. Bootstrap doc updates flow through the canary first: a new index.html sees real traffic on staging, and we promote when it looks healthy. The same shape works for asset rotations and cache behavior tweaks, where a five-minute ramp is enough to catch a regression before it reaches everyone. The CDN isn't where you'd run your most novel code paths, and CD fits that. It catches the obvious failures (a misconfigured header, an inverted cache key, a broken root document) before they reach your full audience.
 
-CD struggles where the staging distribution's feature gaps bite or where you need control it doesn't expose. Lambda@Edge changes are the main case. The staging side has subtle behavioral differences and a percentage-based ramp won't catch a function regression that depends on origin behavior. Per-path weighting isn't supported. Nothing auto-rolls back on health signals; if you want metrics-gated promotion, you build that yourself on top of CD.
+CD struggles where the staging distribution lacks a feature you depend on, or where you need control it doesn't expose. Lambda@Edge changes are the main case. The staging side has subtle behavioral differences and a percentage-based ramp won't catch a function regression that depends on origin behavior. Per-path weighting isn't supported. Nothing auto-rolls back on health signals; if you want metrics-gated promotion, you build that yourself on top of CD.
 
 CD makes sense when traffic on the staging distribution is enough to verify the change. Feature flags handle everything else.
 
-CD's limits are mostly architectural. Doing canary mechanics on an eventually-consistent control plane carries costs, and the operational practice is mostly about designing around them. Within that frame, it's an underrated piece of the AWS stack.
+CD's limits are mostly architectural. Doing canary mechanics on an eventually-consistent control plane carries costs, and the operational practice is mostly about designing around them. Within those limits, it's a useful and under-used piece of the AWS stack.
 
 *(For the record, this site runs on Cloudflare Pages.)*
 

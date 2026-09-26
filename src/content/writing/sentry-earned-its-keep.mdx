@@ -16,7 +16,7 @@ I asked the conversational agent to compare two leveraged backtests. The drawer 
 
 <Image src={drawerError} alt="The agent drawer at the moment of failure: two get_backtest_result tool-call cards rendered cleanly, then a red Anthropic error printed above them. The error message reads 'prompt is too long: 218468 tokens > 200000 maximum'." />
 
-`prompt is too long: 218468 tokens > 200000 maximum`. The agent had fetched two long-horizon backtest results. Each response carried the full equity curve, drawdown series, and rolling returns: around 3500 daily entries per series for a 14-year backtest, three series per response, serializing to roughly 150KB of JSON. Two of those plus the conversation history and tool schemas blew through the 200,000-token input cap.
+`prompt is too long: 218468 tokens > 200000 maximum`. The agent had fetched two long-horizon backtest results. Each response carried the full equity curve, drawdown series, and rolling returns: around 3500 daily entries per series for a 14-year backtest, three series per response, serializing to roughly 150KB of JSON. Two of those plus the conversation history and tool schemas exceeded the 200,000-token input cap.
 
 The fix was a smaller response shape: identification fields, summary metrics, top three drawdowns, and just the first and last points of the equity curve for "grew from X to Y" narration. Everything else dropped. A regression test now asserts the JSON stays under 4KB, well under the threshold that caused the failure.
 

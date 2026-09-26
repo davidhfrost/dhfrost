@@ -7,7 +7,7 @@ draft: false
 
 I added a prompt-cache timer to my Claude Code status line and watched the cache create / cache read ratio swing toward write every time a long subagent dispatched. The obvious story: the cache was evicting on its 5-minute idle timer during the wait, and the next parent message was paying full rate to rebuild the context.
 
-When I went back to the transcripts to verify the math, the mechanism story didn't survive. Claude Code wasn't on the 5-minute cache tier; it was on the 1-hour one, with a different rate. And the biggest "eviction" of the session followed a 99-second gap, not anything close to an hour.
+When I went back to the transcripts to verify the math, that explanation was wrong. Claude Code wasn't on the 5-minute cache tier; it was on the 1-hour one, with a different rate. And the biggest "eviction" of the session followed a 99-second gap, not anything close to an hour.
 
 ## How the cache works
 
@@ -23,7 +23,7 @@ The mental model behind the status-line timer: long subagent wait, cache idles p
 
 The transcripts told a different story. Across the session there were only two large cache_creation events: 476,442 tokens written at 22:00Z and 70,034 written at 19:13Z. The 476k spike followed a parent gap of 99 seconds. Nowhere near the 1-hour TTL.
 
-The rotation fingerprint was visible in the spike message itself: cache_read on the prefix dropped to 16k while a fresh 476k write landed. That's a near-total prefix rebuild, not an idle expiry. The cause: the preceding parent turn had streamed ten `tool_use` blocks in parallel (five TaskCreate plus five Agent), which changed the prefix key. The next cached entry was a fresh write of the whole prefix.
+The spike message itself showed the signature of a rotation: cache_read on the prefix dropped to 16k while a fresh 476k write landed. That's a near-total prefix rebuild, not an idle expiry. The cause: the preceding parent turn had streamed ten `tool_use` blocks in parallel (five TaskCreate plus five Agent), which changed the prefix key. The next cached entry was a fresh write of the whole prefix.
 
 The remaining ~1 million of parent cache_write came from prefix accumulation as the session grew turn by turn. The old mechanism (5-minute idle eviction) would have predicted around 1.2M in cache writes; the corrected mechanism (prefix rotation plus accumulation) gives ~1.48M. The wrong mechanism produced the right order of magnitude, which is why it survived a first pass.
 
