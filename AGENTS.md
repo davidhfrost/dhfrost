@@ -4,7 +4,7 @@ This is a personal website built with Astro 6, Tailwind v4, and deployed to Clou
 
 ## Hard rules
 
-1. **Run `pnpm lint && pnpm build` before committing** anything that touches `.astro`, `.ts`, `.tsx`, `.css`, config, or `tailwind.config.*`. Both must pass — lint catches empty blocks, formatting, and type errors that build silently ignores.
+1. **Run `scripts/preflight.sh` (`pnpm lint && pnpm build`) before committing** anything that touches `.astro`, `.ts`, `.tsx`, `.css`, config, or `tailwind.config.*`. Both must pass — lint catches empty blocks, formatting, and type errors that build silently ignores.
 2. **After any structural HTML change that affects layout, verify visually in the dev server** before committing. `pnpm build` only checks that the template compiles; it cannot catch elements that are misaligned or have lost inherited CSS from a moved parent.
 
 ## Stack-specific notes
